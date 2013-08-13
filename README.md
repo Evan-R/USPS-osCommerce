@@ -12,3 +12,7 @@ Authors:
 - Evan Roberts (evan.aedea@gmail.com)
 
 
+Wishlist: 
+- code cleanup
+- field for (tm) / (r) symbols so that they can easily be updated if USPS decides to change the format again
+- refactoring (code is rather scary right now..)
