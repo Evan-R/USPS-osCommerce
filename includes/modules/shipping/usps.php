@@ -7,12 +7,14 @@ Copyright 2008 osCommerce
 Released under the GNU General Public License
 //VERSION: 5.2.1 ALPHA LAST UPDATED: January 23rd, 2011 by Fulluv Scents
  
-	Version 7.0.0
+	Version 7.0.1
 		@sponsor: Anonymous Sponsor #1
 		@author: Evan Roberts (evan.aedea@gmail.com / github.com/Evan-R/)
 		@notes:
-			- based on top of "better" version of 5.2.1 USPS module
+			- correct issues in notes, fix version number "based on top of", add author "Kevin L Shelton"
+			- based on top of version 6.1 of USPS module by Kevin L Shelton
 			- not all shipping methods have been tested; confirm rates / functionality before using
+			- due to some confusion about version numbers, updated major to 7.X from 5/6 to avoid further confusion
 		@license
 			- USE AT YOUR OWN RISK. NO WARRANTY OF ANY KIND. AUTHOR AND/OR SPONSOR ARE NOT
 			RESPONSIBLE FOR ANY CONSEQUENCES OF USING THIS CODE. BY USING THIS CODE, YOU 
