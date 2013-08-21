@@ -11,6 +11,7 @@ Authors:
 - Brad Waite
 - Fritz Clapp
 - Greg Deeth
+- Kevin L Shelton
 - Evan Roberts (evan.aedea@gmail.com)
 
 
