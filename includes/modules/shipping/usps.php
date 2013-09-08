@@ -17,24 +17,55 @@ Released under the GNU General Public License
 */
 
 // Incorporate the XML conversion library
-if (PHP_VERSION >= '5.0.0') { // PHP 5 does not need to use call-time pass by reference
-	require_once (DIR_WS_CLASSES . 'xml_5.php');
-} else {
-	require_once (DIR_WS_CLASSES . 'xml.php');
-}
+require_once (DIR_WS_CLASSES . 'xml_5.php');
 
-if ( !function_exists('htmlspecialchars_decode') ) {
-	function htmlspecialchars_decode($text) {
-		return strtr($text, array_flip(get_html_translation_table(HTML_SPECIALCHARS)));
-	}
-}
+
+// if ( !function_exists('htmlspecialchars_decode') ) {
+// 	function htmlspecialchars_decode($text) {
+// 		return strtr($text, array_flip(get_html_translation_table(HTML_SPECIALCHARS)));
+// 	}
+// }
 // Sets up USPS Class
 class usps {
 
 	// Sets Variables
-	var $code, $title, $description, $icon, $enabled, $countries;
+	public 
+		$code, 
+		$title, 
+		$description, 
+		$icon, 
+		$enabled, 
+		$countries,
+		$sort_order,
+		$tax_class,
+		$processing,
+		$dmstc_handling,
+		$intl_handling,
+		$sig_conf_thresh,
+		$types,
+		$intl_types,
+		
+		$display_weight,
+		$display_transit,
+		$display_insurance,
+		$display_confirmation,
+		
+		$type_to_request,
+		$type_to_container,
+		$first_class_to_mail_type,
+		
+		$dmstc_type_change,
+		$intl_type_change,
+		$dmstc_available,
+		$intl_available,
+		$first_class_letter,
+		$first_class_large_letter,
+		$first_class_parcel_max_ounces,
+		
+		$shipping_method_sort_direction
+	;
 
-	function usps() {
+	function __construct() {
 		global $order, $packing;
 		$this->code = 'usps';
 		$this->title = MODULE_SHIPPING_USPS_TEXT_TITLE;
@@ -67,6 +98,7 @@ class usps {
 		$this->countries = $this->country_list();
 		$this->sort_order = MODULE_SHIPPING_USPS_SORT_ORDER;
 		$this->tax_class = MODULE_SHIPPING_USPS_TAX_CLASS;
+		$this->processing = (int)MODULE_SHIPPING_USPS_PROCESSING;
 		$this->sig_conf_thresh = MODULE_SHIPPING_USPS_SIG_THRESH;
 		$options = explode(', ', MODULE_SHIPPING_USPS_OPTIONS);
 		$this->display_weight = in_array('Display Weight', $options);
@@ -298,7 +330,9 @@ class usps {
 			$x++;
 		}
 		$this->intl_handling = $tmp;
-	} // end function usps
+		
+		$this->shipping_method_sort_direction = strtolower(MODULE_SHIPPING_USPS_SHIPPING_METHOD_SORT_DIRECTION);
+	} // end constructor
 	// Ends Variable Set Up
 
 	// Sets Country List
@@ -624,7 +658,12 @@ class usps {
 		if ($order->delivery['country']['id'] == SHIPPING_ORIGIN_COUNTRY) { // domestic quote
 			$this->dest_zip = substr($this->dest_zip, 0, 5);
 			$dmstcquotes = array();
-			if ($this->display_transit) $trnstime = $this->_getDmstcTransitTimes();
+			if( $this->display_transit ){
+				$trnstime = $this->_getDmstcTransitTimes();
+			}
+			
+// 			print_r( $trnstime );
+			
 			$error = false;
 			foreach ($boxesToShip as $package) {
 				$pkgQuote = $this->_getDmstcQuote($package, $method);
@@ -653,7 +692,7 @@ class usps {
 				$transtypes = array();
 				foreach ($dmstcquotes as $quote) {
 					if ($quote['count'] != $numBoxes) continue; // skip methods that don't work for all packages
-					if ((MODULE_SHIPPING_USPS_DMSTC_RATE == 'Internet') && $quote['onlineavail']) {
+					if( (MODULE_SHIPPING_USPS_DMSTC_RATE == 'Internet') && $quote['onlineavail'] ){
 						$title = $quote['name']; //$this->types[$quote['id']];
 						if ($this->display_insurance && ($quote['onlineinsval'] > 0)) $title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['onlineinsval'] * 100) / 100);
 						if ($this->display_confirmation && tep_not_null($quote['onlineconf'])) $title .= '<br />---' . $quote['onlineconf'];
@@ -666,17 +705,27 @@ class usps {
 							} else {
 								$time = $trnstime['parcel'];
 							}
-							if ($time != '') $title .= '<br />---' . $time;
+							
+// 							echo "[$time] <br />";
+// 							echo "x[$title]<br />";
+							
+							if( $time != '' ){
+								$title .= '<br />' . $time;
+							}
+							
+// 							echo "[$title]<br />";
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['onlinerate'] + $this->dmstc_handling[$quote['id']];
 						} else {
 							$cost = $quote['onlinerate'] + ($this->dmstc_handling[$quote['id']] * $numBoxes);
 						}
-						$methods[] = array('id' => $quote['id'],
+						$methods[] = array(
+							'id' => $quote['id'],
 							'title' => $title,
-							'cost' => $cost);
-					} elseif ($quote['retailavail']) {
+							'cost' => $cost
+						);
+					} elseif( $quote['retailavail'] ){
 						$title = $quote['name']; //$this->types[$quote['id']];
 						if ($this->display_insurance && ($quote['retailinsval'] > 0)) $title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['retailinsval'] * 100) / 100);
 						if ($this->display_confirmation && tep_not_null($quote['retailconf'])) $title .= '<br />---' . $quote['retailconf'];
@@ -689,16 +738,26 @@ class usps {
 							} else {
 								$time = $trnstime['parcel'];
 							}
-							if ($time != '') $title .= '<br />---' . $time;
+							
+// 							echo "[$time] <br />";
+// 							echo "x[$title]<br />";
+							
+							if( $time != '' ){
+								$title .= '<br />' . $time;
+							}
+							
+// 							echo "[$title]<br />";
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['retailrate'] + $this->dmstc_handling[$quote['id']];
 						} else {
 							$cost = $quote['retailrate'] + ($this->dmstc_handling[$quote['id']] * $numBoxes);
 						}
-						$methods[] = array('id' => $quote['id'],
+						$methods[] = array(
+							'id' => $quote['id'],
 							'title' => $title,
-							'cost' => $cost);
+							'cost' => $cost
+						);
 					}
 				} // end foreach $dmstcquotes
 				if (empty($methods)) { // no quotes valid for all packages
@@ -763,7 +822,7 @@ class usps {
 						$title = $quote['name'];
 						if ($this->display_insurance && ($quote['retailinsval'] > 0)) $title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['retailinsval'] * 100) / 100);
 						if ($this->display_transit && tep_not_null($quote['transtime'])) {
-							$title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $quote['transtime'];
+							$title .= '<br />' . MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $quote['transtime'];
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['retailrate'] + $this->intl_handling[$quote['id']];
@@ -795,7 +854,13 @@ class usps {
 				foreach ($uspsQuote as $method) {
 					$quotesort[$method['id']] = $method['cost'];
 				}
-				arsort($quotesort); // sort methods by cost high to low
+				
+				if( $this->shipping_method_sort_direction == 'desc' ){
+					arsort($quotesort); // sort methods by cost high to low
+				} else {
+					asort($quotesort);
+				}
+				
 				$methods = array();
 				foreach ($quotesort as $key => $cost) {
 					foreach ($uspsQuote as $method) {
@@ -814,6 +879,9 @@ class usps {
 				'error' => MODULE_SHIPPING_USPS_TEXT_ERROR);
 		}
 		if (tep_not_null($this->icon)) $this->quotes['icon'] = tep_image($this->icon, $this->title);
+		
+// 		print_r( $this->quotes );
+		
 		return $this->quotes;
 	}
 	// Ends Quote
@@ -836,6 +904,35 @@ class usps {
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Tax Class', 'MODULE_SHIPPING_USPS_TAX_CLASS', '0', 'Use the following tax class on the shipping fee.', '6', '0', 'tep_get_tax_class_title', 'tep_cfg_pull_down_tax_classes(', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Shipping Zone', 'MODULE_SHIPPING_USPS_ZONE', '0', 'If a zone is selected, only enable this shipping method for that zone.', '6', '0', 'tep_get_zone_class_title', 'tep_cfg_pull_down_zone_classes(', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Display Options', 'MODULE_SHIPPING_USPS_OPTIONS', 'Display Weight, Display Transit Time, Display Insurance, Display Sig./Del. Confirmation', 'Select display options', '6', '0', 'usps_cfg_select_multioption(array(\'Display Weight\', \'Display Transit Time\', \'Display Insurance\', \'Display Sig./Del. Confirmation\'), ', now())");
+		
+		// shipping method sort direction
+		tep_db_query("
+			insert into 
+				" . TABLE_CONFIGURATION . " 
+			(
+				configuration_title, 
+				configuration_key, 
+				configuration_value, 
+				configuration_description, 
+				configuration_group_id, 
+				sort_order, 
+				set_function, 
+				date_added
+			) 
+				values 
+			(
+				'Shipping Method Sort Direction', 
+				'MODULE_SHIPPING_USPS_SHIPPING_METHOD_SORT_DIRECTION', 
+				'Asc', 
+				'Sort by Ascending or Descending', 
+				'6', 
+				'0', 
+				'tep_cfg_select_option(array(\'Asc\', \'Desc\'), ', 
+				now()
+			)
+		");
+		
+		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Processing Time', 'MODULE_SHIPPING_USPS_PROCESSING', '1', 'Days to Process Order', '6', '0', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Package Size Over 60 Pounds', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER60', '24, 24, 12', 'Typical package dimensions in inches required by USPS for rates when package weight exceeds 60 pounds', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Height\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Package Size 50 - 60 Pounds', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER50', '22, 22, 16', 'Typical package dimensions in inches required by USPS for rates when package weight is between 50 and 60 pounds', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Height\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Package Size 40 - 50 Pounds', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER40', '18, 18, 16', 'Typical package dimensions in inches required by USPS for rates when package weight is between 40 and 50 pounds', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Height\'), ', now())");
@@ -887,7 +984,50 @@ class usps {
 	}
 
 	function keys() {
-		return array('MODULE_SHIPPING_USPS_STATUS', 'MODULE_SHIPPING_USPS_USERID', 'MODULE_SHIPPING_USPS_SORT_ORDER', 'MODULE_SHIPPING_USPS_TAX_CLASS', 'MODULE_SHIPPING_USPS_ZONE', 'MODULE_SHIPPING_USPS_OPTIONS', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER60', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER50', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER40', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER30', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER20', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER10', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER5', 'MODULE_SHIPPING_USPS_PKG_SIZE_LESS5', 'MODULE_SHIPPING_USPS_DMSTC_TYPES', 'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED', 'MODULE_SHIPPING_USPS_DMSTC_HANDLING', 'MODULE_SHIPPING_USPS_DMSTC_RATE', 'MODULE_SHIPPING_USPS_DMST_DEL_CONF', 'MODULE_SHIPPING_USPS_DMST_SIG_CONF', 'MODULE_SHIPPING_USPS_SIG_THRESH', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_OPTION', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX_ONLINE', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LETTER', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LRGLTR', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_PARCEL', 'MODULE_SHIPPING_USPS_INTL_TYPES', 'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED', 'MODULE_SHIPPING_USPS_INTL_HANDLING', 'MODULE_SHIPPING_USPS_INTL_RATE', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_OPTION', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_MAX_ONLINE', 'MODULE_SHIPPING_USPS_NON_USPS_INSURE', 'MODULE_SHIPPING_USPS_INS1', 'MODULE_SHIPPING_USPS_INS2', 'MODULE_SHIPPING_USPS_INS3','MODULE_SHIPPING_USPS_INS4', 'MODULE_SHIPPING_USPS_INS5', 'MODULE_SHIPPING_USPS_HANDLING_TYPE');
+		return array(
+			'MODULE_SHIPPING_USPS_STATUS', 
+			'MODULE_SHIPPING_USPS_USERID', 
+			'MODULE_SHIPPING_USPS_SORT_ORDER', 
+			'MODULE_SHIPPING_USPS_TAX_CLASS', 
+			'MODULE_SHIPPING_USPS_ZONE', 
+			'MODULE_SHIPPING_USPS_OPTIONS', 
+			'MODULE_SHIPPING_USPS_SHIPPING_METHOD_SORT_DIRECTION', 
+			'MODULE_SHIPPING_USPS_PROCESSING', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_OVER60', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_OVER50', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_OVER40', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_OVER30', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_OVER20', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_OVER10', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_OVER5', 
+			'MODULE_SHIPPING_USPS_PKG_SIZE_LESS5', 
+			'MODULE_SHIPPING_USPS_DMSTC_TYPES', 
+			'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED', 
+			'MODULE_SHIPPING_USPS_DMSTC_HANDLING', 
+			'MODULE_SHIPPING_USPS_DMSTC_RATE', 
+			'MODULE_SHIPPING_USPS_DMST_DEL_CONF', 
+			'MODULE_SHIPPING_USPS_DMST_SIG_CONF', 
+			'MODULE_SHIPPING_USPS_SIG_THRESH', 
+			'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_OPTION', 
+			'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX', 
+			'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX_ONLINE', 
+			'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LETTER', 
+			'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LRGLTR', 
+			'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_PARCEL', 
+			'MODULE_SHIPPING_USPS_INTL_TYPES', 
+			'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED', 
+			'MODULE_SHIPPING_USPS_INTL_HANDLING', 
+			'MODULE_SHIPPING_USPS_INTL_RATE', 
+			'MODULE_SHIPPING_USPS_INTL_INSURANCE_OPTION', 
+			'MODULE_SHIPPING_USPS_INTL_INSURANCE_MAX_ONLINE', 
+			'MODULE_SHIPPING_USPS_NON_USPS_INSURE', 
+			'MODULE_SHIPPING_USPS_INS1', 
+			'MODULE_SHIPPING_USPS_INS2', 
+			'MODULE_SHIPPING_USPS_INS3',
+			'MODULE_SHIPPING_USPS_INS4', 
+			'MODULE_SHIPPING_USPS_INS5', 
+			'MODULE_SHIPPING_USPS_HANDLING_TYPE'
+		);
 	}
 	// End Install Module
 
@@ -1186,29 +1326,92 @@ class usps {
 		$prioritytime = '';
 		$expresstime = '';
 		$parceltime = '';
+		
 		$doc = XML_unserialize($transpriorityresp);
-		if (isset($doc['PriorityMailResponse']['Days'])) {
-			$prioritytime = MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $doc['PriorityMailResponse']['Days'] . ' ' . ($doc['PriorityMailResponse']['Days'] == 1 ? MODULE_SHIPPING_USPS_TEXT_DAY : MODULE_SHIPPING_USPS_TEXT_DAYS);
+		if( isset($doc['PriorityMailResponse']['Days']) ){
+			// add processing time..
+			$doc['PriorityMailResponse']['Days'] += $this->processing;
+			
+			$prioritytime = 
+				MODULE_SHIPPING_USPS_TEXT_ESTIMATED 
+				. $doc['PriorityMailResponse']['Days'] 
+				. ' ' 
+				. (
+					$doc['PriorityMailResponse']['Days'] == 1 
+						? 
+					MODULE_SHIPPING_USPS_TEXT_DAY 
+						: 
+					MODULE_SHIPPING_USPS_TEXT_DAYS
+				)
+			;
 		}
+		
 		$doc = XML_unserialize($transparcelresp);
-		if (isset($doc['StandardBResponse']['Days'])) {
-			$parceltime = MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $doc['StandardBResponse']['Days'] . ' ' . ($doc['StandardBResponse']['Days'] == 1 ? MODULE_SHIPPING_USPS_TEXT_DAY : MODULE_SHIPPING_USPS_TEXT_DAYS);
+		if( isset($doc['StandardBResponse']['Days']) ){
+			// add processing time..
+			$doc['StandardBResponse']['Days'] += $this->processing;
+			
+			$parceltime = 
+				MODULE_SHIPPING_USPS_TEXT_ESTIMATED 
+				. $doc['StandardBResponse']['Days'] 
+				. ' ' 
+				. (
+					$doc['StandardBResponse']['Days'] == 1 
+						? 
+					MODULE_SHIPPING_USPS_TEXT_DAY 
+						: 
+					MODULE_SHIPPING_USPS_TEXT_DAYS
+				)
+			;
 		}
+		
 		$doc = XML_unserialize($transexpressresp);
-		if (isset($doc['ExpressMailCommitmentResponse']['Commitment'])) {
-			if (isset($doc['ExpressMailCommitmentResponse']['Commitment']['CommitmentName'])) { // single date
-				$sequence = str_replace(array('Next' , 'Days', 'Day'), array('1', MODULE_SHIPPING_USPS_TEXT_DAYS, MODULE_SHIPPING_USPS_TEXT_DAY), $doc['ExpressMailCommitmentResponse']['Commitment']['CommitmentName']);
+// 		print_r( $doc );
+		if( isset($doc['ExpressMailCommitmentResponse']['Commitment']) ){
+			if( isset($doc['ExpressMailCommitmentResponse']['Commitment']['CommitmentName']) ){ // single date
+				$sequence = str_replace(
+					array(
+						'Next', 
+						'Days', 
+						'Day'
+					), 
+					array(
+						'1', 
+						MODULE_SHIPPING_USPS_TEXT_DAYS, 
+						MODULE_SHIPPING_USPS_TEXT_DAY
+					), 
+					$doc['ExpressMailCommitmentResponse']['Commitment']['CommitmentName']
+				);
 			} else { // multiple dates returned, choose longest time
 				$seqlist = array();
-				foreach ($doc['ExpressMailCommitmentResponse']['Commitment'] as $commit) {
-					if (isset($commit['CommitmentName'])) $seqlist[] = str_replace(array('Next' , 'Days', 'Day'), array('1', MODULE_SHIPPING_USPS_TEXT_DAYS, MODULE_SHIPPING_USPS_TEXT_DAY), $commit['CommitmentName']);
+				foreach( $doc['ExpressMailCommitmentResponse']['Commitment'] as $commit ){
+					if( isset($commit['CommitmentName']) ){
+						$seqlist[] = str_replace(
+							array(
+								'Next', 
+								'Days', 
+								'Day'
+							), 
+							array(
+								'1', 
+								MODULE_SHIPPING_USPS_TEXT_DAYS, 
+								MODULE_SHIPPING_USPS_TEXT_DAY
+							), 
+							$commit['CommitmentName']
+						);
+					}
 				}
 				rsort($seqlist);
 				$sequence = $seqlist[0];
 			}
 			$expresstime = MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $sequence;
 		}
-		return array('express' => $expresstime, 'priority' => $prioritytime, 'parcel' => $parceltime);
+		
+		return array(
+			'express' => $expresstime, 
+			'priority' => $prioritytime, 
+			'parcel' => $parceltime
+		);
 	}
 	// END GET TRANSIT TIME
 
@@ -1410,8 +1613,39 @@ class usps {
 				$onlineinsfor = $insured_for;
 			}
 		}
-		$transtime = str_replace(array('weeks', 'days', 'day', 'business', 'Varies by country'), array(MODULE_SHIPPING_USPS_TEXT_WEEKS, MODULE_SHIPPING_USPS_TEXT_DAYS, MODULE_SHIPPING_USPS_TEXT_DAY, MODULE_SHIPPING_USPS_TEXT_BUSINESS, MODULE_SHIPPING_USPS_TEXT_VARIES), $service['SvcCommitments']);
-		return array('id' => $qid,
+		
+		// add processing days to transit time..
+// 		echo "[{$service['SvcCommitments']}]<br />";
+		
+		// days
+		if( strpos($service['SvcCommitments'], 'day') ){
+			$days = explode('-', $service['SvcCommitments']);
+			// remove non-alphanumeric
+			foreach( $days as $key => $val ){
+				$days[$key] = preg_replace('/[^0-9]/', '', $val) + $this->processing;
+			}
+			
+			if( sizeof($days) == 1 ){
+				$transtime = $days[0] . ' ' . MODULE_SHIPPING_USPS_TEXT_BUSINESS_DAYS;
+			} else {
+				$transtime = $days[0] . ' - ' . $days[1] . ' ' . MODULE_SHIPPING_USPS_TEXT_BUSINESS_DAYS;
+			}
+		} 
+		
+		elseif( strpos($service['SvcCommitments'], 'week') ){
+			// don't add processing time
+			// TODO: support if necessary, display "varies" for now
+			$transtime = MODULE_SHIPPING_USPS_TEXT_VARIES;
+		} 
+		
+		// n/a or varies
+		else {
+			$transtime = MODULE_SHIPPING_USPS_TEXT_VARIES;
+		}
+		
+		
+		return array(
+			'id' => $qid,
 			'name' => $qname,
 			'retailavail' => $retailavailable,
 			'onlineavail' => $onlineavailable,
@@ -1419,7 +1653,8 @@ class usps {
 			'onlinerate' => $onlinerate,
 			'retailinsval' => $retailinsfor,
 			'onlineinsval' => $onlineinsfor,
-			'transtime' => $transtime);
+			'transtime' => $transtime
+		);
 	}
 	// END INTERNATIONAL RESPONSE
 
@@ -1454,4 +1689,3 @@ function usps_cfg_multiinput_list($select_array, $key_value, $key = '') {
 	return $string;
 }
 
-?>
