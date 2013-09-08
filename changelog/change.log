@@ -1,0 +1,24 @@
+===== 7.1.0 =====
+- rebased on top of 6.3 USPS by Kevin L Shelton
+- add "sort by" config value to sort shipping methods by ascending or descending
+- add "processing time" config value to add days to time estimates
+- fix issue with international shipping quote time estimates
+
+
+===== 7.0.1 =====
+- correct issues in notes, fix version number "based on top of", add author "Kevin L Shelton"
+- based on top of version 6.1 of USPS module by Kevin L Shelton
+- not all shipping methods have been tested; confirm rates / functionality before using
+- due to some confusion about version numbers, updated major to 7.X from 5/6 to avoid further confusion
+
+
+===== 7.0.0 =====
+- based on top of "better" version of 5.2.1 USPS module
+- not all shipping methods have been tested; confirm rates / functionality before using
+
+
+===== 5.3.0 =====
+- fixed handling rates not being added
+- fixed processing time not being added to estimates
+- added field to specify delivery times in lieu of estimate provided by USPS
+
