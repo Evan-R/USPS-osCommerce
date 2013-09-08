@@ -1,28 +1,19 @@
 <?php
 /*
- $Id: usps.php 6.1 by Kevin L Shelton on September 7, 2011
+ $Id: usps.php 6.3 by Kevin L Shelton on August 15, 2013
 +++++ Original contribution by Brad Waite and Fritz Clapp ++++
 ++++ Revisions and Modifications made by Greg Deeth, 2008 ++++
 Copyright 2008 osCommerce
 Released under the GNU General Public License
 //VERSION: 5.2.1 ALPHA LAST UPDATED: January 23rd, 2011 by Fulluv Scents
- 
-	Version 7.0.1
-		@sponsor: Anonymous Sponsor #1
-		@author: Evan Roberts (evan.aedea@gmail.com / github.com/Evan-R/)
-		@notes:
-			- correct issues in notes, fix version number "based on top of", add author "Kevin L Shelton"
-			- based on top of version 6.1 of USPS module by Kevin L Shelton
-			- not all shipping methods have been tested; confirm rates / functionality before using
-			- due to some confusion about version numbers, updated major to 7.X from 5/6 to avoid further confusion
-		@license
-			- USE AT YOUR OWN RISK. NO WARRANTY OF ANY KIND. AUTHOR AND/OR SPONSOR ARE NOT
-			RESPONSIBLE FOR ANY CONSEQUENCES OF USING THIS CODE. BY USING THIS CODE, YOU 
-			ASSUME FULL RESPONSIBILITY FOR ANY CONSEQUENCES, INCLUDING BUT NOT LIMITED TO
-			DATA LOSS OR SECURITY LIABILITIES THAT MAY ARISE
-				
-			FULL LICENSE: https://github.com/Evan-R/USPS-osCommerce/blob/master/LICENSE 
- 
+
+	Version 7.1.0
+		@Author: Evan Roberts (evan.aedea@gmail.com) 
+		@Notes: https://github.com/Evan-R/USPS-osCommerce/releases
+		@License: https://github.com/Evan-R/USPS-osCommerce/blob/master/LICENSE
+		@Support: https://github.com/Evan-R/USPS-osCommerce/issues
+
+
 */
 
 // Incorporate the XML conversion library
@@ -83,153 +74,207 @@ class usps {
 		$this->display_insurance = in_array('Display Insurance', $options);
 		$this->display_confirmation = in_array('Display Sig./Del. Confirmation', $options);
 		$this->types = array(
-			'Priority Mail Express' => 'Priority Mail Express<sup>&reg;</sup>',
-			'Priority Mail Express Hold For Pickup' => 'Priority Mail Express<sup>&reg;</sup> Hold For Pickup',
-			'Priority Mail Express Sunday/Holiday Delivery' => 'Priority Mail Express<sup>&reg;</sup> Sunday/Holiday Delivery',
-			'Priority Mail Express Flat Rate Envelope' => 'Priority Mail Express<sup>&reg;</sup> Flat Rate Envelope',
-			'Priority Mail Express Flat Rate Envelope Hold For Pickup' => 'Priority Mail Express<sup>&reg;</sup> Flat Rate Envelope Hold For Pickup',
-			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Envelope' => 'Priority Mail Express<sup>&reg;</sup> Sunday/Holiday Delivery Flat Rate Envelope',
-			'Priority Mail Express Legal Flat Rate Envelope' => 'Priority Mail Express<sup>&reg;</sup> Legal Flat Rate Envelope',
-			'Priority Mail Express Legal Flat Rate Envelope Hold For Pickup' => 'Priority Mail Express<sup>&reg;</sup> Legal Flat Rate Envelope Hold For Pickup',
-			'Priority Mail Express Sunday/Holiday Delivery Legal Flat Rate Envelope' => 'Priority Mail Express<sup>&reg;</sup> Sunday/Holiday Delivery Legal Flat Rate Envelope',
-			'Priority Mail' => 'Priority Mail<sup>&reg;</sup>',
-			'Priority Mail Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Hold For Pickup',
-			'Priority Mail Large Flat Rate Box' => 'Priority Mail<sup>&reg;</sup> Large Flat Rate Box',
-			'Priority Mail Large Flat Rate Box Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Large Flat Rate Box Hold For Pickup',
-			'Priority Mail Medium Flat Rate Box' => 'Priority Mail<sup>&reg;</sup> Medium Flat Rate Box',
-			'Priority Mail Medium Flat Rate Box Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Medium Flat Rate Box Hold For Pickup',
-			'Priority Mail Small Flat Rate Box' => 'Priority Mail<sup>&reg;</sup> Small Flat Rate Box',
-			'Priority Mail Small Flat Rate Box Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Small Flat Rate Box Hold For Pickup',
-			'Priority Mail Regional Rate Box A' => 'Priority Mail<sup>&reg;</sup> Regional Rate Box A',
-			'Priority Mail Regional Rate Box A Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Regional Rate Box A Hold For Pickup',
-			'Priority Mail Regional Rate Box B' => 'Priority Mail<sup>&reg;</sup> Regional Rate Box B',
-			'Priority Mail Regional Rate Box B Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Regional Rate Box B Hold For Pickup',
-			'Priority Mail Flat Rate Envelope' => 'Priority Mail<sup>&reg;</sup> Flat Rate Envelope',
-			'Priority Mail Flat Rate Envelope Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Flat Rate Envelope Hold For Pickup',
-			'Priority Mail Legal Flat Rate Envelope' => 'Priority Mail<sup>&reg;</sup> Legal Flat Rate Envelope',
-			'Priority Mail Legal Flat Rate Envelope Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Legal Flat Rate Envelope Hold For Pickup',
-			'Priority Mail Padded Flat Rate Envelope' => 'Priority Mail<sup>&reg;</sup> Padded Flat Rate Envelope',
-			'Priority Mail Padded Flat Rate Envelope Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Padded Flat Rate Envelope Hold For Pickup',
-			'Priority Mail Gift Card Flat Rate Envelope' => 'Priority Mail<sup>&reg;</sup> Gift Card Flat Rate Envelope',
-			'Priority Mail Gift Card Flat Rate Envelope Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Gift Card Flat Rate Envelope Hold For Pickup',
-			'Priority Mail Small Flat Rate Envelope' => 'Priority Mail<sup>&reg;</sup> Small Flat Rate Envelope',
-			'Priority Mail Small Flat Rate Envelope Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Small Flat Rate Envelope Hold For Pickup',
-			'Priority Mail Window Flat Rate Envelope' => 'Priority Mail<sup>&reg;</sup> Window Flat Rate Envelope',
-			'Priority Mail Window Flat Rate Envelope Hold For Pickup' => 'Priority Mail<sup>&reg;</sup> Window Flat Rate Envelope Hold For Pickup',
-			'First-Class Mail Parcel' => 'First-Class Mail<sup>&reg;</sup> Parcel',
-			'First-Class Mail Parcel Hold For Pickup' => 'First-Class Mail<sup>&reg;</sup> Parcel Hold For Pickup',
-			'First-Class Mail Large Envelope' => 'First-Class Mail<sup>&reg;</sup> Large Envelope',
-			'First-Class Mail Letter' => 'First-Class Mail<sup>&reg;</sup> Letter',
-			'Parcel Post' => 'Parcel Post<sup>&reg;</sup>',
-			'Media Mail' => 'Media Mail<sup>&reg;</sup>',
-			'Library Mail' => 'Library Mail'
+			'First-Class Mail',
+			'First-Class Mail Large Envelope',
+			'First-Class Mail Large Postcards',
+			'First-Class Mail Letter',
+			'First-Class Mail Parcel',
+			'First-Class Mail Postcards',
+			'First-Class Package Service',
+			'First-Class Package Service Hold For Pickup',
+			'Library Mail',
+			'Media Mail',
+			'Priority Mail',
+			'Priority Mail Flat Rate Envelope',
+			'Priority Mail Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Gift Card Flat Rate Envelope',
+			'Priority Mail Gift Card Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Hold For Pickup',
+			'Priority Mail Large Flat Rate Box',
+			'Priority Mail Large Flat Rate Box Hold For Pickup',
+			'Priority Mail Legal Flat Rate Envelope',
+			'Priority Mail Legal Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Medium Flat Rate Box',
+			'Priority Mail Medium Flat Rate Box Hold For Pickup',
+			'Priority Mail Padded Flat Rate Envelope',
+			'Priority Mail Padded Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Regional Rate Box A',
+			'Priority Mail Regional Rate Box A Hold For Pickup',
+			'Priority Mail Regional Rate Box B',
+			'Priority Mail Regional Rate Box B Hold For Pickup',
+			'Priority Mail Regional Rate Box C',
+			'Priority Mail Regional Rate Box C Hold For Pickup',
+			'Priority Mail Small Flat Rate Box',
+			'Priority Mail Small Flat Rate Box Hold For Pickup',
+			'Priority Mail Small Flat Rate Envelope',
+			'Priority Mail Small Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Window Flat Rate Envelope',
+			'Priority Mail Window Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Express',
+			'Priority Mail Express Flat Rate Boxes',
+			'Priority Mail Express Flat Rate Boxes Hold For Pickup',
+			'Priority Mail Express Flat Rate Envelope',
+			'Priority Mail Express Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Express Hold For Pickup',
+			'Priority Mail Express Legal Flat Rate Envelope',
+			'Priority Mail Express Legal Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Express Padded Flat Rate Envelope',
+			'Priority Mail Express Padded Flat Rate Envelope Hold For Pickup',
+			'Priority Mail Express Sunday/Holiday Delivery',
+			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Boxes',
+			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Envelope',
+			'Priority Mail Express Sunday/Holiday Delivery Legal Flat Rate Envelope',
+			'Priority Mail Express Sunday/Holiday Delivery Padded Flat Rate Envelope',
+			'Standard Post'
 		);
 		$this->type_to_request = array(
-			'Priority Mail Express' => 'Express Commercial',
-			'Priority Mail Express Hold For Pickup' => 'Express HFP Commercial',
-			'Priority Mail Express Sunday/Holiday Delivery' => 'Express SH Commercial',
-			'Priority Mail Express Flat Rate Envelope' => 'Express Commercial',
-			'Priority Mail Express Flat Rate Envelope Hold For Pickup' => 'Express HFP Commercial',
-			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Envelope' => 'Express SH Commercial',
-			'Priority Mail Express Legal Flat Rate Envelope' => 'Express Commercial',
-			'Priority Mail Express Legal Flat Rate Envelope Hold For Pickup' => 'Express HFP Commercial',
-			'Priority Mail Express Sunday/Holiday Delivery Legal Flat Rate Envelope' => 'Express SH Commercial',
+			'First-Class Mail' => 'First Class',
+			'First-Class Mail Large Envelope' => 'First Class',
+			'First-Class Mail Letter' => 'First Class',
+			'First-Class Mail Parcel' => 'First Class',
+			'First-Class Mail Postcards' => 'First Class',
 			'Priority Mail' => 'Priority Commercial',
-			'Priority Mail Hold For Pickup' => 'Priority HFP Commercial',
-			'Priority Mail Large Flat Rate Box' => 'Priority Commercial',
-			'Priority Mail Large Flat Rate Box Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Express Hold For Pickup' => 'Priority Express HFP Commercial',
+			'Priority Mail Express' => 'Priority Express Commercial',
+			'Standard Post' => 'Standard Post',
+			'Media Mail' => 'Media',
+			'Library Mail' => 'Library',
+			'Priority Mail Express Flat Rate Envelope' => 'Priority Express Commercial',
+			'First-Class Mail Large Postcards' => 'First Class',
+			'Priority Mail Flat Rate Envelope' => 'Priority Commercial',
 			'Priority Mail Medium Flat Rate Box' => 'Priority Commercial',
-			'Priority Mail Medium Flat Rate Box Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Large Flat Rate Box' => 'Priority Commercial',
+			'Priority Mail Express Sunday/Holiday Delivery' => 'Priority Express SH Commercial',
+			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Envelope' => 'Priority Express SH Commercial',
+			'Priority Mail Express Flat Rate Envelope Hold For Pickup' => 'Priority Express HFP Commercial',
 			'Priority Mail Small Flat Rate Box' => 'Priority Commercial',
+			'Priority Mail Padded Flat Rate Envelope' => 'Priority Commercial',
+			'Priority Mail Express Legal Flat Rate Envelope' => 'Priority Express Commercial',
+			'Priority Mail Express Legal Flat Rate Envelope Hold For Pickup' => 'Priority Express HFP Commercial',
+			'Priority Mail Express Sunday/Holiday Delivery Legal Flat Rate Envelope' => 'Priority Express SH Commercial',
+			'Priority Mail Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Large Flat Rate Box Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Medium Flat Rate Box Hold For Pickup' => 'Priority HFP Commercial',
 			'Priority Mail Small Flat Rate Box Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Gift Card Flat Rate Envelope' => 'Priority Commercial',
+			'Priority Mail Gift Card Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Window Flat Rate Envelope' => 'Priority Commercial',
+			'Priority Mail Window Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Small Flat Rate Envelope' => 'Priority Commercial',
+			'Priority Mail Small Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Legal Flat Rate Envelope' => 'Priority Commercial',
+			'Priority Mail Legal Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
+			'Priority Mail Padded Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
 			'Priority Mail Regional Rate Box A' => 'Priority Commercial',
 			'Priority Mail Regional Rate Box A Hold For Pickup' => 'Priority HFP Commercial',
 			'Priority Mail Regional Rate Box B' => 'Priority Commercial',
 			'Priority Mail Regional Rate Box B Hold For Pickup' => 'Priority HFP Commercial',
-			'Priority Mail Flat Rate Envelope' => 'Priority Commercial',
-			'Priority Mail Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
-			'Priority Mail Legal Flat Rate Envelope' => 'Priority Commercial',
-			'Priority Mail Legal Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
-			'Priority Mail Padded Flat Rate Envelope' => 'Priority Commercial',
-			'Priority Mail Padded Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
-			'Priority Mail Gift Card Flat Rate Envelope' => 'Priority Commercial',
-			'Priority Mail Gift Card Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
-			'Priority Mail Small Flat Rate Envelope' => 'Priority Commercial',
-			'Priority Mail Small Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
-			'Priority Mail Window Flat Rate Envelope' => 'Priority Commercial',
-			'Priority Mail Window Flat Rate Envelope Hold For Pickup' => 'Priority HFP Commercial',
-			'First-Class Mail Parcel' => 'First Class Commercial',
-			'First-Class Mail Parcel Hold For Pickup' => 'First Class HFP Commercial',
-			'First-Class Mail Large Envelope' => 'First Class',
-			'First-Class Mail Letter' => 'First Class',
-			'Parcel Post' => 'Parcel',
-			'Media Mail' => 'Media',
-			'Library Mail' => 'Library'
+			'First-Class Package Service Hold For Pickup' => 'First Class HFP Commercial',
+			'Priority Mail Express Flat Rate Boxes' => 'Priority Express Commercial',
+			'Priority Mail Express Flat Rate Boxes Hold For Pickup' => 'Priority Express HFP Commercial',
+			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Boxes' => 'Priority Express SH Commercial',
+			'Priority Mail Regional Rate Box C' => 'Priority Commercial',
+			'Priority Mail Regional Rate Box C Hold For Pickup' => 'Priority HFP Commercial',
+			'First-Class Package Service' => 'First Class Commercial',
+			'Priority Mail Express Padded Flat Rate Envelope' => 'Priority Express Commercial',
+			'Priority Mail Express Padded Flat Rate Envelope Hold For Pickup' => 'Priority Express HFP Commercial',
+			'Priority Mail Express Sunday/Holiday Delivery Padded Flat Rate Envelope' => 'Priority Express SH Commercial'
 		);
 		$this->type_to_container = array(
-			'Priority Mail Express' => '',
+			'First-Class Mail' => '',
+			'First-Class Mail Large Envelope' => '',
+			'First-Class Mail Letter' => '',
+			'First-Class Mail Parcel' => '',
+			'First-Class Mail Postcards' => '',
+			'Priority Mail' => '',
 			'Priority Mail Express Hold For Pickup' => '',
-			'Priority Mail Express Sunday/Holiday Delivery' => '',
+			'Priority Mail Express' => '',
+			'Standard Post' => '',
+			'Media Mail' => '',
+			'Library Mail' => '',
 			'Priority Mail Express Flat Rate Envelope' => 'Flat Rate Envelope',
-			'Priority Mail Express Flat Rate Envelope Hold For Pickup' => 'Flat Rate Envelope',
+			'First-Class Mail Large Postcards' => '',
+			'Priority Mail Flat Rate Envelope' => 'Flat Rate Envelope',
+			'Priority Mail Medium Flat Rate Box' => 'MD Flat Rate Box',
+			'Priority Mail Large Flat Rate Box' => 'LG Flat Rate Box',
+			'Priority Mail Express Sunday/Holiday Delivery' => '',
 			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Envelope' => 'Flat Rate Envelope',
+			'Priority Mail Express Flat Rate Envelope Hold For Pickup' => 'Flat Rate Envelope',
+			'Priority Mail Small Flat Rate Box' => 'SM Flat Rate Box',
+			'Priority Mail Padded Flat Rate Envelope' => 'Padded Flat Rate Envelope',
 			'Priority Mail Express Legal Flat Rate Envelope' => 'Legal Flat Rate Envelope',
 			'Priority Mail Express Legal Flat Rate Envelope Hold For Pickup' => 'Legal Flat Rate Envelope',
 			'Priority Mail Express Sunday/Holiday Delivery Legal Flat Rate Envelope' => 'Legal Flat Rate Envelope',
-			'Priority Mail' => '',
 			'Priority Mail Hold For Pickup' => '',
-			'Priority Mail Large Flat Rate Box' => 'LG Flat Rate Box',
 			'Priority Mail Large Flat Rate Box Hold For Pickup' => 'LG Flat Rate Box',
-			'Priority Mail Medium Flat Rate Box' => 'MD Flat Rate Box',
 			'Priority Mail Medium Flat Rate Box Hold For Pickup' => 'MD Flat Rate Box',
-			'Priority Mail Small Flat Rate Box' => 'SM Flat Rate Box',
 			'Priority Mail Small Flat Rate Box Hold For Pickup' => 'SM Flat Rate Box',
+			'Priority Mail Flat Rate Envelope Hold For Pickup' => 'Flat Rate Envelope',
+			'Priority Mail Gift Card Flat Rate Envelope' => 'Gift Card Flat Rate Envelope',
+			'Priority Mail Gift Card Flat Rate Envelope Hold For Pickup' => 'Gift Card Flat Rate Envelope',
+			'Priority Mail Window Flat Rate Envelope' => 'Window Flat Rate Envelope',
+			'Priority Mail Window Flat Rate Envelope Hold For Pickup' => 'Window Flat Rate Envelope',
+			'Priority Mail Small Flat Rate Envelope' => 'SM Flat Rate Envelope',
+			'Priority Mail Small Flat Rate Envelope Hold For Pickup' => 'SM Flat Rate Envelope',
+			'Priority Mail Legal Flat Rate Envelope' => 'Legal Flat Rate Envelope',
+			'Priority Mail Legal Flat Rate Envelope Hold For Pickup' => 'Legal Flat Rate Envelope',
+			'Priority Mail Padded Flat Rate Envelope Hold For Pickup' => 'Padded Flat Rate Envelope',
 			'Priority Mail Regional Rate Box A' => 'Regional Rate Box A',
 			'Priority Mail Regional Rate Box A Hold For Pickup' => 'Regional Rate Box A',
 			'Priority Mail Regional Rate Box B' => 'Regional Rate Box B',
 			'Priority Mail Regional Rate Box B Hold For Pickup' => 'Regional Rate Box B',
-			'Priority Mail Flat Rate Envelope' => 'Flat Rate Envelope',
-			'Priority Mail Flat Rate Envelope Hold For Pickup' => 'Flat Rate Envelope',
-			'Priority Mail Legal Flat Rate Envelope' => 'Legal Flat Rate Envelope',
-			'Priority Mail Legal Flat Rate Envelope Hold For Pickup' => 'Legal Flat Rate Envelope',
-			'Priority Mail Padded Flat Rate Envelope' => 'Padded Flat Rate Envelope',
-			'Priority Mail Padded Flat Rate Envelope Hold For Pickup' => 'Padded Flat Rate Envelope',
-			'Priority Mail Gift Card Flat Rate Envelope' => 'Gift Card Flat Rate Envelope',
-			'Priority Mail Gift Card Flat Rate Envelope Hold For Pickup' => 'Gift Card Flat Rate Envelope',
-			'Priority Mail Small Flat Rate Envelope' => 'SM Flat Rate Envelope',
-			'Priority Mail Small Flat Rate Envelope Hold For Pickup' => 'SM Flat Rate Envelope',
-			'Priority Mail Window Flat Rate Envelope' => 'Window Flat Rate Envelope',
-			'Priority Mail Window Flat Rate Envelope Hold For Pickup' => 'Window Flat Rate Envelope',
-			'First-Class Mail Parcel' => '',
-			'First-Class Mail Parcel Hold For Pickup' => '',
-			'First-Class Mail Large Envelope' => '',
-			'First-Class Mail Letter' => '',
-			'Parcel Post' => '',
-			'Media Mail' => '',
-			'Library Mail' => ''
+			'First-Class Package Service Hold For Pickup' => '',
+			'Priority Mail Express Flat Rate Boxes' => 'Flat Rate Box',
+			'Priority Mail Express Flat Rate Boxes Hold For Pickup' => 'Flat Rate Box',
+			'Priority Mail Express Sunday/Holiday Delivery Flat Rate Boxes' => 'Flat Rate Box',
+			'Priority Mail Regional Rate Box C' => 'Regional Rate Box C',
+			'Priority Mail Regional Rate Box C Hold For Pickup' => 'Regional Rate Box C',
+			'First-Class Package Service' => '',
+			'Priority Mail Express Padded Flat Rate Envelope' => 'Padded Flat Rate Envelope',
+			'Priority Mail Express Padded Flat Rate Envelope Hold For Pickup' => 'Padded Flat Rate Envelope',
+			'Priority Mail Express Sunday/Holiday Delivery Padded Flat Rate Envelope' => 'Padded Flat Rate Envelope'
+		);
+		$this->first_class_to_mail_type = array(
+			'First-Class Mail' => 'PARCEL',
+			'First-Class Mail Large Envelope' => 'FLAT',
+			'First-Class Mail Letter' => 'LETTER',
+			'First-Class Mail Parcel' => 'PARCEL',
+			'First-Class Mail Postcards' => 'POSTCARD',
+			'First-Class Mail Large Postcards' => 'POSTCARD',
+			'First-Class Package Service Hold For Pickup' => 'PACKAGE SERVICE',
+			'First-Class Package Service' => 'PACKAGE SERVICE'
 		);
 		$this->intl_types = array(
-			'USPS GXG Envelopes**' => 'USPS GXG<sup>&trade;</sup> Envelopes**',
-			'Priority Mail Express International' => 'Priority Mail Express<sup>&trade;</sup> International',
-			'Priority Mail Express International Flat Rate Envelope' => 'Priority Mail Express<sup>&trade;</sup> International Flat Rate Envelope',
-			'Priority Mail Express International Legal Flat Rate Envelope' => 'Priority Mail Express<sup>&trade;</sup> International Legal Flat Rate Envelope',
-			'Priority Mail International' => 'Priority Mail<sup>&reg;</sup> International',
-			'Priority Mail International Large Flat Rate Box' => 'Priority Mail<sup>&reg;</sup> International Large Flat Rate Box',
-			'Priority Mail International Medium Flat Rate Box' => 'Priority Mail<sup>&reg;</sup> International Medium Flat Rate Box',
-			'Priority Mail International Small Flat Rate Box**' => 'Priority Mail<sup>&reg;</sup> International Small Flat Rate Box**',
-			'Priority Mail International DVD Flat Rate Box**' => 'Priority Mail<sup>&reg;</sup> International DVD Flat Rate Box**',
-			'Priority Mail International Large Video Flat Rate Box**' => 'Priority Mail<sup>&reg;</sup> International Large Video Flat Rate Box**',
-			'Priority Mail International Flat Rate Envelope**' => 'Priority Mail<sup>&reg;</sup> International Flat Rate Envelope**',
-			'Priority Mail International Legal Flat Rate Envelope**' => 'Priority Mail<sup>&reg;</sup> International Legal Flat Rate Envelope**',
-			'Priority Mail International Padded Flat Rate Envelope**' => 'Priority Mail<sup>&reg;</sup> International Padded Flat Rate Envelope**',
-			'Priority Mail International Gift Card Flat Rate Envelope**' => 'Priority Mail<sup>&reg;</sup> International Gift Card Flat Rate Envelope**',
-			'Priority Mail International Small Flat Rate Envelope**' => 'Priority Mail<sup>&reg;</sup> International Small Flat Rate Envelope**',
-			'Priority Mail International Window Flat Rate Envelope**' => 'Priority Mail<sup>&reg;</sup> International Window Flat Rate Envelope**',
-			'First-Class Package International Service**' => 'First-Class Package<sup>&reg;</sup> International Service**',
-			'First-Class Mail International Large Envelope**' => 'First-Class Mail<sup>&reg;</sup> International Large Envelope**',
-			'First-Class Mail International Letter**' => 'First-Class Mail<sup>&reg;</sup> International Letter**',
-			'Global Express Guaranteed (GXG)**' => 'Global Express Guaranteed<sup>&reg;</sup> (GXG)**'
+			'Priority Mail Express International',
+			'Priority Mail International',
+			'Global Express Guaranteed (GXG)**',
+			'Global Express Guaranteed Document',
+			'Global Express Guaranteed Non-Document Rectangular',
+			'Global Express Guaranteed Non-Document Non-Rectangular',
+			'Priority Mail International Flat Rate Envelope**',
+			'Priority Mail International Medium Flat Rate Box',
+			'Priority Mail Express International Flat Rate Envelope',
+			'Priority Mail International Large Flat Rate Box',
+			'USPS GXG Envelopes**',
+			'First-Class Mail International Letter**',
+			'First-Class Mail International Large Envelope**',
+			'First-Class Package International Service**',
+			'Priority Mail International Small Flat Rate Box**',
+			'Priority Mail Express International Legal Flat Rate Envelope',
+			'Priority Mail International Gift Card Flat Rate Envelope**',
+			'Priority Mail International Window Flat Rate Envelope**',
+			'Priority Mail International Small Flat Rate Envelope**',
+			'First-Class Mail International Postcard',
+			'Priority Mail International Legal Flat Rate Envelope**',
+			'Priority Mail International Padded Flat Rate Envelope**',
+			'Priority Mail International DVD Flat Rate priced box**',
+			'Priority Mail International Large Video Flat Rate priced box**',
+			'Priority Mail Express International Flat Rate Boxes',
+			'Priority Mail Express International Padded Flat Rate Envelope'
 		);
+		$this->dmstc_type_change = false;
+		$this->intl_type_change = false;
 		$this->dmstc_available = explode(', ', MODULE_SHIPPING_USPS_DMSTC_TYPES);
 		$this->intl_available = explode(', ', MODULE_SHIPPING_USPS_INTL_TYPES);
 		list($length, $width, $height, $ounces) = explode(', ', MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LETTER);
@@ -240,16 +285,16 @@ class usps {
 		$handling = explode( ", ", MODULE_SHIPPING_USPS_DMSTC_HANDLING);
 		$x = 0;
 		$tmp = array(); // handling values are stored in same order as types
-		foreach ($this->types as $key => $title) { // create handling array keyed by method
-			$tmp[$key] = $handling[$x];
+		foreach ($this->types as $title) { // create handling array keyed by method
+			$tmp[$title] = $handling[$x];
 			$x++;
 		}
 		$this->dmstc_handling = $tmp;
 		$handling = explode( ", ", MODULE_SHIPPING_USPS_INTL_HANDLING);
 		$x = 0;
 		$tmp = array();
-		foreach ($this->intl_types as $key => $title) { // create handling array keyed by method
-			$tmp[$key] = $handling[$x];
+		foreach ($this->intl_types as $title) { // create handling array keyed by method
+			$tmp[$title] = $handling[$x];
 			$x++;
 		}
 		$this->intl_handling = $tmp;
@@ -609,9 +654,9 @@ class usps {
 				foreach ($dmstcquotes as $quote) {
 					if ($quote['count'] != $numBoxes) continue; // skip methods that don't work for all packages
 					if ((MODULE_SHIPPING_USPS_DMSTC_RATE == 'Internet') && $quote['onlineavail']) {
-						$title = $this->types[$quote['id']];
-						if ($this->display_insurance && ($quote['onlineinsval'] > 0)) $title .= '<br>---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['onlineinsval'] * 100) / 100);
-						if ($this->display_confirmation && tep_not_null($quote['onlineconf'])) $title .= '<br>---' . $quote['onlineconf'];
+						$title = $quote['name']; //$this->types[$quote['id']];
+						if ($this->display_insurance && ($quote['onlineinsval'] > 0)) $title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['onlineinsval'] * 100) / 100);
+						if ($this->display_confirmation && tep_not_null($quote['onlineconf'])) $title .= '<br />---' . $quote['onlineconf'];
 						if ($this->display_transit && ($trnstime !== false)) {
 							$time = '';
 							if ((strpos($quote['id'], 'First') !== false) || (strpos($quote['id'], 'Priority') !== false)) {
@@ -621,7 +666,7 @@ class usps {
 							} else {
 								$time = $trnstime['parcel'];
 							}
-							if ($time != '') $title .= '<br>---' . $time;
+							if ($time != '') $title .= '<br />---' . $time;
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['onlinerate'] + $this->dmstc_handling[$quote['id']];
@@ -632,9 +677,9 @@ class usps {
 							'title' => $title,
 							'cost' => $cost);
 					} elseif ($quote['retailavail']) {
-						$title = $this->types[$quote['id']];
-						if ($this->display_insurance && ($quote['retailinsval'] > 0)) $title .= '<br>---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['retailinsval'] * 100) / 100);
-						if ($this->display_confirmation && tep_not_null($quote['retailconf'])) $title .= '<br>---' . $quote['retailconf'];
+						$title = $quote['name']; //$this->types[$quote['id']];
+						if ($this->display_insurance && ($quote['retailinsval'] > 0)) $title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['retailinsval'] * 100) / 100);
+						if ($this->display_confirmation && tep_not_null($quote['retailconf'])) $title .= '<br />---' . $quote['retailconf'];
 						if ($this->display_transit && ($trnstime !== false)) {
 							$time = '';
 							if ((strpos($quote['id'], 'First') !== false) || (strpos($quote['id'], 'Priority') !== false)) {
@@ -644,7 +689,7 @@ class usps {
 							} else {
 								$time = $trnstime['parcel'];
 							}
-							if ($time != '') $title .= '<br>---' . $time;
+							if ($time != '') $title .= '<br />---' . $time;
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['retailrate'] + $this->dmstc_handling[$quote['id']];
@@ -661,6 +706,10 @@ class usps {
 				} else {
 					$uspsQuote = $methods;
 				}
+			}
+			if ($this->dmstc_type_change && (MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED == 'False')) {
+				tep_mail(STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, 'USPS Domestic Shipping Type Change', 'The USPS shipping module has detected that the USPS Rates API has returned a domestic service response name that is not listed in the module\'s complete list of domestic response types. As this could create problems with providing customers with USPS rate quotes you should check as soon as possible the documentation for the Rate Calculator on the USPS Web Tools internet page for changes that could affect the working of this module.', 'Your USPS Shipping Module', STORE_OWNER_EMAIL_ADDRESS);
+				tep_db_query ("update " . TABLE_CONFIGURATION . " set configuration_value = 'True' where configuration_key = 'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED'");
 			}
 		} else { // international quote
 			$maxinsurance_query = tep_db_query("select distinct(max_insurance) from USPS_intl_maxins where insurable and country_code = '" . tep_db_input($order->delivery['country']['iso_code_2']) . "' order by max_insurance");
@@ -697,10 +746,10 @@ class usps {
 				foreach ($intlquotes as $quote) {
 					if ($quote['count'] != $numBoxes) continue; // skip methods that don't work for all packages
 					if ((MODULE_SHIPPING_USPS_INTL_RATE == 'Internet') && $quote['onlineavail']) {
-						$title = $this->intl_types[$quote['id']];
-						if ($this->display_insurance && ($quote['onlineinsval'] > 0)) $title .= '<br>---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['onlineinsval'] * 100) / 100);
+						$title = $quote['name'];
+						if ($this->display_insurance && ($quote['onlineinsval'] > 0)) $title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['onlineinsval'] * 100) / 100);
 						if ($this->display_transit && tep_not_null($quote['transtime'])) {
-							$title .= '<br>---' . MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $quote['transtime'];
+							$title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $quote['transtime'];
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['onlinerate'] + $this->intl_handling[$quote['id']];
@@ -711,10 +760,10 @@ class usps {
 							'title' => $title,
 							'cost' => $cost);
 					} elseif ($quote['retailavail']) {
-						$title = $this->intl_types[$quote['id']];
-						if ($this->display_insurance && ($quote['retailinsval'] > 0)) $title .= '<br>---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['retailinsval'] * 100) / 100);
+						$title = $quote['name'];
+						if ($this->display_insurance && ($quote['retailinsval'] > 0)) $title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_INSURED . '$' . (ceil($quote['retailinsval'] * 100) / 100);
 						if ($this->display_transit && tep_not_null($quote['transtime'])) {
-							$title .= '<br>---' . MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $quote['transtime'];
+							$title .= '<br />---' . MODULE_SHIPPING_USPS_TEXT_ESTIMATED . $quote['transtime'];
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['retailrate'] + $this->intl_handling[$quote['id']];
@@ -731,6 +780,10 @@ class usps {
 				} else {
 					$uspsQuote = $methods;
 				}
+			}
+			if ($this->intl_type_change && (MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED == 'False')) {
+				tep_mail(STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, 'USPS Internatonal Shipping Type Change', 'The USPS shipping module has detected that the USPS Rates API has returned a international service response name that is not listed in the module\'s complete list of international response types. As this could create problems with providing customers with USPS rate quotes you should check as soon as possible the documentation for the Rate Calculator on the USPS Web Tools internet page for changes that could affect the working of this module.', 'Your USPS Shipping Module', STORE_OWNER_EMAIL_ADDRESS);
+				tep_db_query ("update " . TABLE_CONFIGURATION . " set configuration_value = 'True' where configuration_key = 'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED'");
 			}
 		}
 		if (is_array($uspsQuote)) {
@@ -776,7 +829,7 @@ class usps {
 	// Install Module
 	function install() {
 		tep_db_query("ALTER TABLE `configuration` CHANGE `configuration_value` `configuration_value` TEXT NOT NULL, CHANGE `set_function` `set_function` TEXT NULL DEFAULT NULL");
-		tep_db_query("create table if not exists USPS_intl_maxins (country_code char(2) not null, method varchar(128) not null, insurable tinyint(1) not null default 0, max_insurance smallint unsigned not null default 0, last_modified datetime not null, primary key (country_code, method))");
+		tep_db_query("create table if not exists USPS_intl_maxins (country_code char(2) not null, method varchar(128) not null, insurable tinyint(1) not null default 0, max_insurance smallint unsigned not null default 0, last_modified datetime not null, primary key (country_code, method)) collate utf8_general_ci");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable USPS Shipping', 'MODULE_SHIPPING_USPS_STATUS', 'True', 'Do you want to offer USPS shipping?', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Enter the USPS User ID', 'MODULE_SHIPPING_USPS_USERID', 'NONE', 'Enter the USPS USERID assigned to you. <u>You must contact USPS to have them switch you to the Production server.</u>  Otherwise this module will not work!', '6', '0', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_SHIPPING_USPS_SORT_ORDER', '0', 'Sort order of display.', '6', '0', now())");
@@ -791,16 +844,15 @@ class usps {
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Package Size 10 - 20 Pounds', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER10', '16, 12, 10', 'Typical package dimensions in inches required by USPS for rates when package weight is between 10 and 20 pounds', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Height\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Package Size 5 - 10 Pounds', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER5', '12, 12, 5', 'Typical package dimensions in inches required by USPS for rates when package weight is between 5 and 10 pounds', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Height\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Package Size Up To 5 Pounds', 'MODULE_SHIPPING_USPS_PKG_SIZE_LESS5', '12, 9, 3', 'Typical package dimensions in inches required by USPS for rates when package weight is up to 5 pounds', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Height\'), ', now())");
-		$value = array();
 		$cfglist = array();
 		$handling = array();
-		foreach ($this->types as $key => $title) {
-			$value[] = $key;
-			$cfglist[] = "\'" . $key . "\'";
+		foreach ($this->types as $title) {
+			$cfglist[] = "\'" . $title . "\'";
 			$handling[] = '0';
 		}
 		// Values to select domestic shipping methods and handling are set from list created in function usps
-		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Shipping Methods', 'MODULE_SHIPPING_USPS_DMSTC_TYPES', '" . implode(', ', $value) . "', 'Select the domestic services to be offered:', '6', '0', 'usps_cfg_select_multioption(array(" . implode(', ', $cfglist) . "), ', now())");
+		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Shipping Methods', 'MODULE_SHIPPING_USPS_DMSTC_TYPES', '" . implode(', ', $this->types) . "', 'Select the domestic services to be offered:', '6', '0', 'usps_cfg_select_multioption(array(" . implode(', ', $cfglist) . "), ', now())");
+		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Types Have Changed', 'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED', 'False', 'Automatically set by this module to True if the USPS returns a response not listed in the domestic types array.', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Flat Handling Fees', 'MODULE_SHIPPING_USPS_DMSTC_HANDLING', '" . implode(', ', $handling) . "', 'Add a different handling fee for each shipping type.', '6', '0', 'usps_cfg_multiinput_list(array(" . implode(', ', $cfglist) . "), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Rates', 'MODULE_SHIPPING_USPS_DMSTC_RATE', 'Retail', 'Charge retail pricing or internet pricing?', '6', '0', 'tep_cfg_select_option(array(\'Retail\', \'Internet\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Delivery Confirmation', 'MODULE_SHIPPING_USPS_DMST_DEL_CONF', 'True', 'Automatically charge Delivery Confirmation when available? Note: Signature Confirmation will override this if it is selected.', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
@@ -812,45 +864,19 @@ class usps {
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('First Class Letter Maximums', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LETTER', '11.5, 6.125, 0.25, 3.5', 'Enter the maximum dimensions in inches and weight in ounces for a standard First Class letter.', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Thickness\', \'Ounces\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('First Class Large Letter Maximums', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LRGLTR', '15, 12, 0.75, 13', 'Enter the maximum dimensions in inches and weight in ounces for a standard First Class large letter.', '6', '0', 'usps_cfg_multiinput_list(array(\'Length\', \'Width\', \'Thickness\', \'Ounces\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('First Class Parcel Maximum', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_PARCEL', '13', 'Enter the maximum weight in ounces for a standard First Class parcel.', '6', '0', now())");
-		$value = array();
 		$cfglist = array();
 		$handling = array();
-		foreach ($this->intl_types as $key => $title) {
-			$value[] = $key;
-			$cfglist[] = "\'" . $key . "\'";
+		foreach ($this->intl_types as $title) {
+			$cfglist[] = "\'" . $title . "\'";
 			$handling[] = '0';
 		}
-		// Values to select international shipping methods and handling are set from list created in function usps (constructor)
-		// international types
-		tep_db_query("
-			insert into 
-				" . TABLE_CONFIGURATION . " 
-			(
-				configuration_title, 
-				configuration_key, 
-				configuration_value, 
-				configuration_description, 
-				configuration_group_id, 
-				sort_order, 
-				set_function, 
-				date_added
-			) 
-				values 
-			(
-				'International Shipping Methods', 
-				'MODULE_SHIPPING_USPS_INTL_TYPES', 
-				'" . implode(', ', $value) . "', 
-				'Select the international services to be offered:', 
-				'6', 
-				'0', 
-				'usps_cfg_select_multioption(array(" . implode(', ', $cfglist) . "), ', 
-				now()
-			)
-		");
+		// Values to select international shipping methods and handling are set from list created in function usps
+		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Shipping Methods', 'MODULE_SHIPPING_USPS_INTL_TYPES', '" . implode(', ', $this->intl_types) . "', 'Select the international services to be offered:', '6', '0', 'usps_cfg_select_multioption(array(" . implode(', ', $cfglist) . "), ', now())");
+		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Types Have Changed', 'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED', 'False', 'Automatically set by this module to True if the USPS returns a response not listed in the international types array.', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Flat Handling Fees', 'MODULE_SHIPPING_USPS_INTL_HANDLING', '" . implode(', ', $handling) . "', 'Add a different handling fee for each shipping type.', '6', '0', 'usps_cfg_multiinput_list(array(" . implode(', ', $cfglist) . "), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Rates', 'MODULE_SHIPPING_USPS_INTL_RATE', 'Retail', 'Charge retail pricing or internet pricing? (Note: If set to internet and internet pricing is not available retail rate will be returned.)', '6', '0', 'tep_cfg_select_option(array(\'Retail\', \'Internet\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Insurance', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_OPTION', 'True', 'Use USPS calculated international insurance?', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
-		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Maximum Online Domestic Insurance', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_MAX_ONLINE', '500', 'Enter the maximum package value that the USPS allows for international insurance when using internet shipping.', '6', '0', now())");
+		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Maximum Online International Insurance', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_MAX_ONLINE', '500', 'Enter the maximum package value that the USPS allows for international insurance when using internet shipping.', '6', '0', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Non USPS Insurance - Domestic and international', 'MODULE_SHIPPING_USPS_NON_USPS_INSURE', 'False', 'Would you like to charge insurance for packages independent of USPS, i.e, merchant provided, Stamps.com, Endicia?  If used in conjunction with USPS calculated insurance, the higher of the two will apply.', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, date_added) values ('Non USPS Insurance', 'MODULE_SHIPPING_USPS_INS1', '1.75', 'Totals $.01-$50.00', '6', '0', 'currencies->format', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, date_added) values ('Non USPS Insurance', 'MODULE_SHIPPING_USPS_INS2', '2.25', 'Totals $50.01-$100', '6', '0', 'currencies->format', now())");
@@ -861,7 +887,7 @@ class usps {
 	}
 
 	function keys() {
-		return array('MODULE_SHIPPING_USPS_STATUS', 'MODULE_SHIPPING_USPS_USERID', 'MODULE_SHIPPING_USPS_SORT_ORDER', 'MODULE_SHIPPING_USPS_TAX_CLASS', 'MODULE_SHIPPING_USPS_ZONE', 'MODULE_SHIPPING_USPS_OPTIONS', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER60', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER50', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER40', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER30', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER20', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER10', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER5', 'MODULE_SHIPPING_USPS_PKG_SIZE_LESS5', 'MODULE_SHIPPING_USPS_DMSTC_TYPES', 'MODULE_SHIPPING_USPS_DMSTC_HANDLING', 'MODULE_SHIPPING_USPS_DMSTC_RATE', 'MODULE_SHIPPING_USPS_DMST_DEL_CONF', 'MODULE_SHIPPING_USPS_DMST_SIG_CONF', 'MODULE_SHIPPING_USPS_SIG_THRESH', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_OPTION', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX_ONLINE', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LETTER', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LRGLTR', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_PARCEL', 'MODULE_SHIPPING_USPS_INTL_TYPES', 'MODULE_SHIPPING_USPS_INTL_HANDLING', 'MODULE_SHIPPING_USPS_INTL_RATE', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_OPTION', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_MAX_ONLINE', 'MODULE_SHIPPING_USPS_NON_USPS_INSURE', 'MODULE_SHIPPING_USPS_INS1', 'MODULE_SHIPPING_USPS_INS2', 'MODULE_SHIPPING_USPS_INS3','MODULE_SHIPPING_USPS_INS4', 'MODULE_SHIPPING_USPS_INS5', 'MODULE_SHIPPING_USPS_HANDLING_TYPE');
+		return array('MODULE_SHIPPING_USPS_STATUS', 'MODULE_SHIPPING_USPS_USERID', 'MODULE_SHIPPING_USPS_SORT_ORDER', 'MODULE_SHIPPING_USPS_TAX_CLASS', 'MODULE_SHIPPING_USPS_ZONE', 'MODULE_SHIPPING_USPS_OPTIONS', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER60', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER50', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER40', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER30', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER20', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER10', 'MODULE_SHIPPING_USPS_PKG_SIZE_OVER5', 'MODULE_SHIPPING_USPS_PKG_SIZE_LESS5', 'MODULE_SHIPPING_USPS_DMSTC_TYPES', 'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED', 'MODULE_SHIPPING_USPS_DMSTC_HANDLING', 'MODULE_SHIPPING_USPS_DMSTC_RATE', 'MODULE_SHIPPING_USPS_DMST_DEL_CONF', 'MODULE_SHIPPING_USPS_DMST_SIG_CONF', 'MODULE_SHIPPING_USPS_SIG_THRESH', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_OPTION', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX', 'MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX_ONLINE', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LETTER', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LRGLTR', 'MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_PARCEL', 'MODULE_SHIPPING_USPS_INTL_TYPES', 'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED', 'MODULE_SHIPPING_USPS_INTL_HANDLING', 'MODULE_SHIPPING_USPS_INTL_RATE', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_OPTION', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_MAX_ONLINE', 'MODULE_SHIPPING_USPS_NON_USPS_INSURE', 'MODULE_SHIPPING_USPS_INS1', 'MODULE_SHIPPING_USPS_INS2', 'MODULE_SHIPPING_USPS_INS3','MODULE_SHIPPING_USPS_INS4', 'MODULE_SHIPPING_USPS_INS5', 'MODULE_SHIPPING_USPS_HANDLING_TYPE');
 	}
 	// End Install Module
 
@@ -881,20 +907,10 @@ class usps {
 		} else {
 			$request_types = $this->dmstc_available;
 		}
-		$group_count = 1;
-		$type_count = 0;
-		foreach ($request_types as $service) { // break the requested shipping methods into groups
-			$type_count++;
-			if ($type_count > 25) { // only 25 services allowed per request
-				$group_count++;
-				$type_count = 1;
-			}
-			$request_group[$group_count][$type_count] = $service;
-		}
 		$shipping_weight = ($pkg['item_weight'] < 0.0625 ? 0.0625 : $pkg['item_weight']);
 		$shipping_pounds = floor($shipping_weight);
 		$shipping_ounces = ceil((16 * ($shipping_weight - $shipping_pounds)) * 100) / 100; // rounded to two decimal digits
-		$ounces = $shipping_weight * 16;
+		$ounces = $shipping_weight * 16.0;
 		$pkgvalue = $pkg['item_price'];
 		if ($pkgvalue > MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX) $pkgvalue = MODULE_SHIPPING_USPS_DMSTC_INSURANCE_MAX;
 		if ($pkgvalue <= 0) $pkgvalue = 0.01;
@@ -912,14 +928,6 @@ class usps {
 				$nonuspsinsurancecost = MODULE_SHIPPING_USPS_INS4 + ((ceil($pkg['item_price']/100) - 3) * MODULE_SHIPPING_USPS_INS5);
 			}
 		}
-		$firstclassmailtype = ''; // determine if package can fit one of the first class mail types
-		if (($pkg['item_length'] <= $this->first_class_letter['length']) && ($pkg['item_width'] <= $this->first_class_letter['width']) && ($pkg['item_height'] <= $this->first_class_letter['height']) && ($ounces <= $this->first_class_letter['ounces'])) {
-			$firstclassmailtype = 'LETTER';
-		} elseif (($pkg['item_length'] <= $this->first_class_large_letter['length']) && ($pkg['item_width'] <= $this->first_class_large_letter['width']) && ($pkg['item_height'] <= $this->first_class_large_letter['height']) && ($ounces <= $this->first_class_large_letter['ounces'])) {
-			$firstclassmailtype = 'FLAT';
-		} elseif ($ounces <= $this->first_class_parcel_max_ounces) {
-			$firstclassmailtype = 'PARCEL';
-		}
 		$sservs = array(); // any special services to request
 		if (MODULE_SHIPPING_USPS_DMSTC_INSURANCE_OPTION == 'True') $sservs = array(1, 11); //request insurance, both regular & express mail
 		if ((MODULE_SHIPPING_USPS_DMST_SIG_CONF == 'True') && ($order->info['subtotal'] >= MODULE_SHIPPING_USPS_SIG_THRESH)) {
@@ -932,139 +940,128 @@ class usps {
 			foreach ($sservs as $id) $sservice .= '<SpecialService>' . $id . '</SpecialService>';
 			$sservice = '<SpecialServices>' . $sservice . '</SpecialServices>';
 		}
+		$box = array($pkg['item_length'], $pkg['item_width'], $pkg['item_height']);
+		rsort($box); // put package size in large to small order for purposes of checking dimensions
+		list($length, $width, $height) = $box;
 		$id = 0;
-		$quotes = array();
-		foreach ($request_group as $group) {
-			$request  = '<RateV4Request USERID="' . MODULE_SHIPPING_USPS_USERID . '"><Revision>2</Revision>';
-			foreach ($group as $service) {
-				if (strpos($service, 'First') !== false) { // if first class mail service check if will fit type
-					if ($firstclassmailtype == '') continue; // skip if not a valid first class package
-					$fcmt = $firstclassmailtype;
-					if ((strpos($service, 'Letter') !== false) && ($fcmt != 'LETTER')) continue; // don't check letter type if package doesn't fit letter
-					if (strpos($service, 'Large') !== false) {
-						if ($firstclassmailtype == 'PARCEL') continue; // don't check large letter type if package doesn't fit
-						$fcmt = 'FLAT'; // package type is either Flat or Letter and we need to check Flat since letter will fit in large envelope
-					}
-					if (strpos($service, 'Package') !== false) $fcmt = 'PARCEL'; // parcel can contain letter or large envelope so we need to check First Class Package for any determined First Class Mail Type
-				}
-				$cont = $this->type_to_container[$service]; // begin checking for packages larger than USPS containers
-				// if this service type specifies a container and this package won't fit then skip this service
-				if (strpos($cont, 'Envelope') !== false) { // if service container is envelope
-					if ($pkg['item_height'] > 1) continue; // anything thicker than one inch won't fit an envelope
-					if ((strpos($cont, 'SM') !== false) && (($pkg['item_length'] > 10) || ($pkg['item_width'] > 6))) continue;
-					if ((strpos($cont, 'Window') !== false) && (($pkg['item_length'] > 10) || ($pkg['item_width'] > 5))) continue;
-					if ((strpos($cont, 'Gift') !== false) && (($pkg['item_length'] > 10) || ($pkg['item_width'] > 7))) continue;
-					if ((strpos($cont, 'Legal') !== false) && (($pkg['item_length'] > 15) || ($pkg['item_width'] > 9.5))) continue;
-					if (($pkg['item_length'] > 12.5) || ($pkg['item_width'] > 9.5)) continue; // other envelopes
-				}
-				if (($cont == 'SM Flat Rate Box') && (($pkg['item_length'] > 8.625) || ($pkg['item_width'] > 5.375) || ($pkg['item_height'] > 1.625))) continue;
-				if (($cont == 'MD Flat Rate Box') && (($pkg['item_length'] > 11) || ($pkg['item_width'] > 8.5) || ($pkg['item_height'] > 5.5))) continue;
-				if (($cont == 'LG Flat Rate Box') && (($pkg['item_length'] > 12) || ($pkg['item_width'] > 12) || ($pkg['item_height'] > 5.5))) continue;
-				if (($cont == 'Regional Rate Box A') && (($pkg['item_length'] > 10) || ($pkg['item_width'] > 7) || ($pkg['item_height'] > 4.75))) continue;
-				if (($cont == 'Regional Rate Box B') && (($pkg['item_length'] > 12) || ($pkg['item_width'] > 10.25) || ($pkg['item_height'] > 5))) continue;
-				$request .= '<Package ID="'. $id . '"><Service>' . $this->type_to_request[$service] . '</Service>';
-				if (strpos($service, 'First') !== false) $request .= '<FirstClassMailType>' . $fcmt . '</FirstClassMailType>';
-				$request .= '<ZipOrigination>' . SHIPPING_ORIGIN_ZIP . '</ZipOrigination>' .
-						'<ZipDestination>' . $this->dest_zip . '</ZipDestination>' .
-	  			'<Pounds>' . $shipping_pounds . '</Pounds>' .
-		  		'<Ounces>' . $shipping_ounces . '</Ounces>';
-				if (max($pkg['item_length'], $pkg['item_width'], $pkg['item_height']) > 12) {
-					$request .= '<Container>RECTANGULAR</Container><Size>LARGE</Size>' .
-							'<Width>' . $pkg['item_width'] . '</Width>' .
-							'<Length>' . $pkg['item_length'] . '</Length>'.
-							'<Height>' . $pkg['item_height'] . '</Height>';
-				} else {
-					$request .= '<Container>' .  $cont . '</Container><Size>REGULAR</Size>';
-				}
-				if (MODULE_SHIPPING_USPS_DMSTC_INSURANCE_OPTION == 'True') $request .= '<Value>' . number_format($pkgvalue, 2, '.', '') . '</Value>';
-				$request .= $sservice;
-				if ((strpos($service, 'First') !== false) || (strpos($service, 'Parcel') !== false)) $request .= '<Machinable>true</Machinable>';
-				$request .= '</Package>';
-				$id++;
-			} // end foreach $group
+		$quotes = $request_group = array();
+		$group_count = 1;
+		$type_count = 0;
+		$urllength = strlen('production.shippingapis.com/shippingAPI.dll?<RateV4Request USERID="' . MODULE_SHIPPING_USPS_USERID . '"><Revision>2</Revision></RateV4Request>');
+		foreach ($request_types as $service) { // break the requested shipping methods into groups
+			if (strpos($service, 'First') !== false) { // if first class mail service check if will fit type
+				$fcmt = $this->first_class_to_mail_type[$service];
+				if (($fcmt == 'LETTER') && (($length > $this->first_class_letter['length']) || ($width > $this->first_class_letter['width']) || ($height > $this->first_class_letter['height']) || ($ounces > $this->first_class_letter['ounces']))) continue; // don't check letter type if package doesn't fit
+				if (($fcmt == 'FLAT') && (($length > $this->first_class_large_letter['length']) || ($width > $this->first_class_large_letter['width']) || ($height > $this->first_class_large_letter['height']) || ($ounces > $this->first_class_large_letter['ounces']))) continue;  // don't check large letter type if package doesn't fit
+				if (($fcmt == 'POSTCARD') && (($length > 6) || ($width > 4.25) || ($height > 0.016) || ($ounces > 3.5))) continue;  // don't check postcard type if package doesn't fit
+				if ($ounces > $this->first_class_parcel_max_ounces) continue; // don't check First Class if too heavy
+			}
+			$cont = $this->type_to_container[$service]; // begin checking for packages larger than USPS containers
+			// if this service type specifies a container and this package won't fit then skip this service
+			if (strpos($cont, 'Envelope') !== false) { // if service container is envelope
+				if ($height > 1) continue; // anything thicker than one inch won't fit an envelope
+				if ((strpos($cont, 'SM') !== false) && (($length > 10) || ($width > 6))) continue;
+				if ((strpos($cont, 'Window') !== false) && (($length > 10) || ($width > 5))) continue;
+				if ((strpos($cont, 'Gift') !== false) && (($length > 10) || ($width > 7))) continue;
+				if ((strpos($cont, 'Legal') !== false) && (($length > 15) || ($width > 9.5))) continue;
+				if (($length > 12.5) || ($width > 9.5)) continue; // other envelopes
+			}
+			if (($cont == 'SM Flat Rate Box') && (($length > 8.625) || ($width > 5.375) || ($height > 1.625))) continue;
+			if (($cont == 'MD Flat Rate Box') || ($cont == 'Flat Rate Box')) {
+				if ($length > 13.625) continue; // too big for longest medium box
+				if ($length > 11) { // check medium type 2 box
+					if (($length > 13.625) || ($width > 11.875) || ($height > 3.375)) continue; // won't fit medium type 2 box
+				} elseif (($length > 11) || ($width > 8.5) || ($height > 5.5)) continue; // won't fit either type medium box
+			}
+			if (($cont == 'LG Flat Rate Box') && (($length > 12) || ($width > 12) || ($height > 5.5))) continue;
+			if ($cont == 'Regional Rate Box A') {
+				if ($length > 12.8125) continue; // too big for longest A box
+				if ($length > 10) { // check A2 box
+					if (($length > 12.8125) || ($width > 10.9375) || ($height > 2.375)) continue; // won't fit A2 box
+				} elseif (($length > 10) || ($width > 7) || ($height > 4.75)) continue; // won't fit either type A box
+			}
+			if ($cont == 'Regional Rate Box B') {
+				if ($length > 15.875) continue; // too big for longest B box
+				if ($length > 12) { // check B2 box
+					if (($length > 15.875) || ($width > 14.375) || ($height > 2.875)) continue; // won't fit B2 box
+				} elseif (($length > 12) || ($width > 10.25) || ($height > 5)) continue; // won't fit either type B box
+			}
+			if (($cont == 'Regional Rate Box C') && (($length > 14.75) || ($width > 11.75) || ($height > 11.5))) continue;
+			// passed all size checks so build request
+			$request = '<Package ID="'. $id . '"><Service>' . $this->type_to_request[$service] . '</Service>';
+			if (strpos($service, 'First') !== false) $request .= '<FirstClassMailType>' . $fcmt . '</FirstClassMailType>';
+			$request .= '<ZipOrigination>' . SHIPPING_ORIGIN_ZIP . '</ZipOrigination>' .
+					'<ZipDestination>' . $this->dest_zip . '</ZipDestination>' .
+					'<Pounds>' . $shipping_pounds . '</Pounds>' .
+	  		'<Ounces>' . $shipping_ounces . '</Ounces>';
+			if ((strpos($cont, 'Rate') === false) && (max($length, $width, $height) > 12)) {
+				$request .= '<Container>RECTANGULAR</Container><Size>LARGE</Size>' .
+						'<Width>' . $width . '</Width>' .
+						'<Length>' . $length . '</Length>'.
+						'<Height>' . $height . '</Height>';
+			} else {
+				$request .= '<Container>' .  $cont . '</Container><Size>REGULAR</Size>';
+			}
+			if (MODULE_SHIPPING_USPS_DMSTC_INSURANCE_OPTION == 'True') $request .= '<Value>' . number_format($pkgvalue, 2, '.', '') . '</Value>';
+			$request .= $sservice;
+			if ((strpos($service, 'First') !== false) || (strpos($service, 'Post') !== false)) $request .= '<Machinable>true</Machinable>';
+			$request .= '</Package>';
+			$id++;
+			$type_count++;
+			if (($type_count > 25) || (($urllength + strlen(urlencode($request))) > 2000)) { // only 25 services allowed per request or 2000 characters per url
+				$group_count++;
+				$type_count = 1;
+				$urllength = strlen('production.shippingapis.com/shippingAPI.dll?<RateV4Request USERID="' . MODULE_SHIPPING_USPS_USERID . '"><Revision>2</Revision></RateV4Request>');
+			}
+			$urllength += strlen(urlencode($request));
+			$request_group[$group_count][$type_count] = $request;
+		} // end foreach request type as service
+		if (empty($request_group)) return array('error' => MODULE_SHIPPING_USPS_ERROR_NO_SERVICES);
+		if (!class_exists('httpClient')) {
+			include(DIR_FS_CATALOG . DIR_WS_CLASSES .'http_client.php');
+		} //print_r($request_group);
+		foreach ($request_group as $service_group) {
+			$request = '<RateV4Request USERID="' . MODULE_SHIPPING_USPS_USERID . '"><Revision>2</Revision>';
+			foreach ($service_group as $service_request) {
+				$request .= $service_request;
+			}
 			$request .= '</RateV4Request>';
 			$request = 	'API=RateV4&XML=' . urlencode($request);
-			$usps_server = 'production.shippingapis.com';
-			$api_dll = 'shippingAPI.dll';
 			$body = '';
-			if( ! class_exists('httpClient') ){
-				include('includes/classes/http_client.php');
-			}
 			$http = new httpClient();
-			if ($http->Connect($usps_server, 80)) {
-				$http->addHeader('Host', $usps_server);
+			if ($http->Connect('production.shippingapis.com', 80)) {
+				$http->addHeader('Host', 'production.shippingapis.com');
 				$http->addHeader('User-Agent', 'osCommerce');
 				$http->addHeader('Connection', 'Close');
-				if ($http->Get('/' . $api_dll . '?' . $request)) $body = $http->getBody();
+				if ($http->Get('/shippingAPI.dll?' . $request)) $body = $http->getBody();
 				$http->Disconnect();
 			} else {
 				$body = '<Error><Number></Number><Description>' . MODULE_SHIPPING_USPS_TEXT_CONNECTION_ERROR . '</Description></Error>';
 			}
-			$doc = XML_unserialize($body);
-			
-			
-			// error..
-			if( isset($doc['Error']) ){
-				return array('error' => $doc['Error']['Number'] . ' ' . $doc['Error']['Description']);
-			}
-			
-			// single mail service response..
-			if (isset($doc['RateV4Response']['Package']['Postage'])) { 
-				$tmp = $this->_decode_domestic_response(
-					$doc['RateV4Response']['Package']['Postage'], 
-					$pkgvalue, 
-					$nonuspsinsurancecost, 
-					$pkg['item_price']
-				);
-				if( ! empty($tmp) ){
-					$quotes[$tmp['id']] = $tmp;
-				}				
-			} 
-			
-			// multiple mailing services returned..
-			elseif( isset($doc['RateV4Response']['Package'][0]) ){ 
-				foreach( $doc['RateV4Response']['Package'] as $mailsvc ){
-					if( isset($mailsvc['Postage']) ){
-						$tmp = $this->_decode_domestic_response(
-							$mailsvc['Postage'], 
-							$pkgvalue, 
-							$nonuspsinsurancecost, 
-							$pkg['item_price']
-						);
+			$doc = XML_unserialize($body); //print_r($doc);
+			if (isset($doc['Error'])) return array('error' => $doc['Error']['Number'] . ' ' . $doc['Error']['Description']);
+			if (isset($doc['RateV4Response']['Package']['Postage'])) { // single mail service response
+				$tmp = $this->_decode_domestic_response($doc['RateV4Response']['Package']['Postage'], $pkgvalue, $nonuspsinsurancecost, $pkg['item_price']);
+				if (!empty($tmp)) $quotes[$tmp['id']] = $tmp;
+			} elseif (isset($doc['RateV4Response']['Package'][0])) { // multiple mailing services returned
+				foreach ($doc['RateV4Response']['Package'] as $mailsvc) {
+					if (isset($mailsvc['Postage'])) {
+						$tmp = $this->_decode_domestic_response($mailsvc['Postage'], $pkgvalue, $nonuspsinsurancecost, $pkg['item_price']);
 						if (!empty($tmp)) $quotes[$tmp['id']] = $tmp;
 					}
 				}
 			}
 		} // end foreach $request_group
-		
 		return $quotes;
 	}
 	// END DOMESTIC REQUEST
 
 	// START USPS DECODE DOMESTIC RESPONSE
 	function _decode_domestic_response($service, $pkgvalue, $nonuspsinsurancecost, $opval) {
-		if( ! isset($service['MailService']) ){
-			return array();
-		}
-		
-		$qid = trim(str_replace(
-			array(
-				'<sup>', 
-				'</sup>', 
-				'&reg;', 
-				'&trade;',
-				'&#174;',
-				'&#8482;',
-				' 1-Day',
-				' 2-Day',
-				' 3-Day',
-				' Military',
-				' DPM'
-			), 
-			'', 
-			htmlspecialchars_decode($service['MailService'])
-		));
-		
+		if (!isset($service['MailService'])) return array();
+		$qname = htmlspecialchars_decode($service['MailService']);
+		$qid = str_replace(array('<sup>', '</sup>', '&reg;', '&trade;', '&#174;', '&#8482;', ' 1-Day', ' 2-Day', ' 3-Day', ' Military', ' DPO'), '', $qname);
+		if (!in_array($qid, $this->types)) $this->dmstc_type_change = true; // not in the complete list of types
 		$retailrate = $service['Rate'];
 		$onlinerate = $service['CommercialRate'];
 		$retailavailable = ($retailrate > 0);
@@ -1073,11 +1070,6 @@ class usps {
 		$retailinsfor = $onlineinsfor = 0;
 		$retailcname = $onlinecname = '';
 		$confname = '';
-		
-		
-// 		echo "[$qid] ($retailrate)<br />";
-		
-		
 		if (is_array($service['SpecialServices']['SpecialService'])) {
 			foreach ($service['SpecialServices']['SpecialService'] as $special) {
 				if (strpos($special['ServiceName'], 'Insurance') !== false) {
@@ -1086,7 +1078,7 @@ class usps {
 					$insrateretail = $special['Price'];
 					$insrateonline = $special['PriceOnline'];
 					$insset = true;
-				} elseif (strpos($special['ServiceName'], 'Confirmation') !== false) {
+				} elseif ((strpos($special['ServiceName'], 'Confirmation') !== false) || (strpos($special['ServiceName'], 'Tracking') !== false)) {
 					$confname = htmlspecialchars_decode($special['ServiceName']);
 					$confavailable = ($special['Available'] == 'true');
 					$confavailableonline = ($special['AvailableOnline'] == 'true');
@@ -1141,7 +1133,7 @@ class usps {
 				$onlineinsfor = $pkgvalue;
 			}
 		}
-		if (((MODULE_SHIPPING_USPS_DMST_SIG_CONF == 'True') || (MODULE_SHIPPING_USPS_DMST_DEL_CONF == 'True')) && $confset) { // using confirmation and it was set
+		if ((((MODULE_SHIPPING_USPS_DMST_SIG_CONF == 'True') && ($order->info['subtotal'] >= MODULE_SHIPPING_USPS_SIG_THRESH)) || (MODULE_SHIPPING_USPS_DMST_DEL_CONF == 'True')) && $confset) { // using confirmation and it was set
 			if ($confavailable && $retailavailable) {
 				$retailcname .= $confname;
 				$retailrate += $confrateretail;
@@ -1151,9 +1143,8 @@ class usps {
 				$onlinerate += $confrateonline;
 			}
 		}
-		
-		return array(
-			'id' => $qid,
+		return array('id' => $qid,
+			'name' => $qname,
 			'retailavail' => $retailavailable,
 			'onlineavail' => $onlineavailable,
 			'retailrate' => $retailrate,
@@ -1161,8 +1152,7 @@ class usps {
 			'retailconf' => $retailcname,
 			'onlineconf' => $onlinecname,
 			'retailinsval' => $retailinsfor,
-			'onlineinsval' => $onlineinsfor
-		);
+			'onlineinsval' => $onlineinsfor);
 	}
 	// END DOMESTIC RESPONSE
 
@@ -1177,8 +1167,8 @@ class usps {
 		$usps_server = 'production.shippingapis.com';
 		$api_dll = 'shippingAPI.dll';
 		$body = '';
-		if( ! class_exists('httpClient')){
-			include('includes/classes/http_client.php');
+		if (!class_exists('httpClient')) {
+			include(DIR_FS_CATALOG . DIR_WS_CLASSES . 'http_client.php');
 		}
 		$http = new httpClient();
 		if ($http->Connect($usps_server, 80)) {
@@ -1294,8 +1284,8 @@ class usps {
 		$usps_server = 'production.shippingapis.com';
 		$api_dll = 'shippingAPI.dll';
 		$body = '';
-		if( ! class_exists('httpClient') ){
-			include('includes/classes/http_client.php');
+		if (!class_exists('httpClient')) {
+			include(DIR_FS_CATALOG . DIR_WS_CLASSES . 'http_client.php');
 		}
 		$http = new httpClient();
 		if ($http->Connect($usps_server, 80)) {
@@ -1308,44 +1298,21 @@ class usps {
 			$body = '<Error><Number></Number><Description>' . MODULE_SHIPPING_USPS_TEXT_CONNECTION_ERROR . '</Description></Error>';
 		}
 		$doc = XML_unserialize($body);
-		
-// 		print_r( $doc ); exit;
-		
 		$quotes = array();
 		if (isset($doc['Error'])) return array('error' => $doc['Error']['Number'] . ' ' . $doc['Error']['Description']);
 		if (isset($doc['IntlRateV2Response']['Package']['Error'])) return array('error' => $doc['IntlRateV2Response']['Package']['Error']['Number'] . ' ' . $doc['IntlRateV2Response']['Package']['Error']['Description']);
 		if (isset($doc['IntlRateV2Response']['Package'][0]['Error'])) return array('error' => $doc['IntlRateV2Response']['Package']['Error'][0]['Number'] . ' ' . $doc['IntlRateV2Response']['Package'][0]['Error']['Description']);
-		
-		// single mail service response..
-		if( isset($doc['IntlRateV2Response']['Package']['Service']['SvcDescription']) ){ 
-			$tmp = $this->_decode_intl_response(
-				$doc['RateV4Response']['Package']['Service'], 
-				$nonuspsinsurancecost, 
-				$pkg['item_price']
-			);
-			if( ! empty($tmp) ){
-				$quotes[$tmp['id']] = $tmp;
-			}
-		} 
-		
-		// multiple mailing services returned.. 
-		elseif( isset($doc['IntlRateV2Response']['Package']['Service'][0]) ){ 
-			foreach( $doc['IntlRateV2Response']['Package']['Service'] as $mailsvc ){
-				if( isset($mailsvc['SvcDescription']) ){
-					$tmp = $this->_decode_intl_response(
-						$mailsvc, 
-						$nonuspsinsurancecost, 
-						$pkg['item_price']
-					);
-					if( ! empty($tmp) ){
-						$quotes[$tmp['id']] = $tmp;
-					}
+		if (isset($doc['IntlRateV2Response']['Package']['Service']['SvcDescription'])) { // single mail service response
+			$tmp = $this->_decode_intl_response($doc['RateV4Response']['Package']['Service'], $nonuspsinsurancecost, $pkg['item_price']);
+			if (!empty($tmp)) $quotes[$tmp['id']] = $tmp;
+		} elseif (isset($doc['IntlRateV2Response']['Package']['Service'][0])) { // multiple mailing services returned
+			foreach ($doc['IntlRateV2Response']['Package']['Service'] as $mailsvc) {
+				if (isset($mailsvc['SvcDescription'])) {
+					$tmp = $this->_decode_intl_response($mailsvc, $nonuspsinsurancecost, $pkg['item_price']);
+					if (!empty($tmp)) $quotes[$tmp['id']] = $tmp;
 				}
 			}
-		} 
-		
-		// multiple packages requested for insurance purposes..
-		elseif (isset($doc['IntlRateV2Response']['Package'][0]['Service'])) { 
+		} elseif (isset($doc['IntlRateV2Response']['Package'][0]['Service'])) { // multiple packages requested for insurance purposes
 			foreach ($doc['IntlRateV2Response']['Package'] as $package) {
 				if (isset($package['Service']['SvcDescription'])) { // single mail service response for package
 					$tmp = $this->_decode_intl_response($package['Service'], $nonuspsinsurancecost, $pkg['item_price']);
@@ -1360,9 +1327,6 @@ class usps {
 				}
 			}
 		}
-		
-// 		print_r( $quotes );
-		
 		return $quotes;
 	}
 	// END INTERNATIONAL REQUEST
@@ -1393,37 +1357,10 @@ class usps {
 				}
 			}
 		}
-		
-		$qid = trim(str_replace(
-			array(
-				'<sup>',
-				'</sup>',
-				'&reg;',
-				'&trade;',
-				'&#174;',
-				'&#8482;',
-			),
-			'',
-			htmlspecialchars_decode($service['SvcDescription'])
-		));
-				
-		
-// 		print_r( $this->intl_request_types ); exit;
-
-// 		if( $qid == 'First-Class Package International Service**' ){
-// 			print_r( $service );
-// 		}
-		
-		// not an allowed international method
-		if( ! in_array($qid, $this->intl_request_types) ){
-			
-// 			echo "$qid ({$service['Postage']}) not allowed <br />";
-			
-			return array(); 
-		}
-		
-// 		echo "<strong>[$qid] ({$service['Postage']}) is allowed</strong><br />";
-		
+		$qname = htmlspecialchars_decode($service['SvcDescription']);
+		$qid = str_replace(array('<sup>', '</sup>', '&reg;', '&trade;', '&#174;', '&#8482;'), '', $qname);
+		if (!in_array($qid, $this->intl_types)) $this->intl_type_change = true; // not in the complete list of types
+		if (!in_array($qid, $this->intl_request_types)) return array(); // not an allowed international method
 		$retailrate = $service['Postage'];
 		$onlinerate = $service['CommercialPostage'];
 		$retailavailable = ($retailrate > 0);
@@ -1475,6 +1412,7 @@ class usps {
 		}
 		$transtime = str_replace(array('weeks', 'days', 'day', 'business', 'Varies by country'), array(MODULE_SHIPPING_USPS_TEXT_WEEKS, MODULE_SHIPPING_USPS_TEXT_DAYS, MODULE_SHIPPING_USPS_TEXT_DAY, MODULE_SHIPPING_USPS_TEXT_BUSINESS, MODULE_SHIPPING_USPS_TEXT_VARIES), $service['SvcCommitments']);
 		return array('id' => $qid,
+			'name' => $qname,
 			'retailavail' => $retailavailable,
 			'onlineavail' => $onlineavailable,
 			'retailrate' => $retailrate,
@@ -1495,7 +1433,7 @@ class usps {
 function usps_cfg_select_multioption($select_array, $key_value, $key = '') {
 	for ($i=0; $i<sizeof($select_array); $i++) {
 		$name = (($key) ? 'configuration[' . $key . '][]' : 'configuration_value');
-		$string .= '<br><input type="checkbox" name="' . $name . '" value="' . $select_array[$i] . '"';
+		$string .= '<br /><input type="checkbox" name="' . $name . '" value="' . $select_array[$i] . '"';
 		$key_values = explode( ", ", $key_value);
 		if ( in_array($select_array[$i], $key_values) ) $string .= ' CHECKED';
 		$string .= '> ' . $select_array[$i];
@@ -1510,7 +1448,7 @@ function usps_cfg_multiinput_list($select_array, $key_value, $key = '') {
 
 	for ($i=0; $i<sizeof($select_array); $i++) {
 		$name = (($key) ? 'configuration[' . $key . '][]' : 'configuration_value');
-		$string .= '<br><input type="text" name="' . $name . '" value="' . $key_values[$i] . '" size="7"> ' . $select_array[$i];
+		$string .= '<br /><input type="text" name="' . $name . '" value="' . $key_values[$i] . '" size="7"> ' . $select_array[$i];
 	}
 	$string .= '<input type="hidden" name="' . $name . '" value="--none--">';
 	return $string;
