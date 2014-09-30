@@ -1,6 +1,6 @@
 <?php
 /*
-	Version 7.2.0
+	Version 7.3.0
 		@Author: Evan Roberts (evan.aedea@gmail.com) 
 		@Notes: https://github.com/Evan-R/USPS-osCommerce/releases
 		@License: https://github.com/Evan-R/USPS-osCommerce/blob/master/LICENSE
@@ -65,7 +65,7 @@ class usps {
 	function __construct() {
 		global $order, $packing;
 		$this->code = 'usps';
-		$this->version = '7.2.0';
+		$this->version = '7.3.0';
 		$this->title = MODULE_SHIPPING_USPS_TEXT_TITLE;
 		$this->description = MODULE_SHIPPING_USPS_TEXT_DESCRIPTION;
 		$this->icon = DIR_WS_ICONS . 'shipping_usps.gif';
