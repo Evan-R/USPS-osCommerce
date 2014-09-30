@@ -1,36 +1,31 @@
 <?php
 /*
- $Id: usps.php 6.3 by Kevin L Shelton on August 15, 2013
-+++++ Original contribution by Brad Waite and Fritz Clapp ++++
-++++ Revisions and Modifications made by Greg Deeth, 2008 ++++
-Copyright 2008 osCommerce
-Released under the GNU General Public License
-//VERSION: 5.2.1 ALPHA LAST UPDATED: January 23rd, 2011 by Fulluv Scents
-
-	Version 7.1.0
+	Version 7.2.0
 		@Author: Evan Roberts (evan.aedea@gmail.com) 
 		@Notes: https://github.com/Evan-R/USPS-osCommerce/releases
 		@License: https://github.com/Evan-R/USPS-osCommerce/blob/master/LICENSE
 		@Support: https://github.com/Evan-R/USPS-osCommerce/issues
 
 
+	Legacy / Historical Information:
+		$Id: usps.php 6.3 by Kevin L Shelton on August 15, 2013
+		+++++ Original contribution by Brad Waite and Fritz Clapp ++++
+		++++ Revisions and Modifications made by Greg Deeth, 2008 ++++
+		Copyright 2008 osCommerce
+		Released under the GNU General Public License
+		//VERSION: 5.2.1 ALPHA LAST UPDATED: January 23rd, 2011 by Fulluv Scents
 */
 
 // Incorporate the XML conversion library
-require_once (DIR_WS_CLASSES . 'xml_5.php');
+require_once(DIR_WS_CLASSES . 'xml_5.php');
 
-
-// if ( !function_exists('htmlspecialchars_decode') ) {
-// 	function htmlspecialchars_decode($text) {
-// 		return strtr($text, array_flip(get_html_translation_table(HTML_SPECIALCHARS)));
-// 	}
-// }
 // Sets up USPS Class
 class usps {
 
 	// Sets Variables
 	public 
 		$code, 
+		$version,
 		$title, 
 		$description, 
 		$icon, 
@@ -54,8 +49,10 @@ class usps {
 		$type_to_container,
 		$first_class_to_mail_type,
 		
+		// detect type changing..
 		$dmstc_type_change,
 		$intl_type_change,
+		
 		$dmstc_available,
 		$intl_available,
 		$first_class_letter,
@@ -68,6 +65,7 @@ class usps {
 	function __construct() {
 		global $order, $packing;
 		$this->code = 'usps';
+		$this->version = '7.2.0';
 		$this->title = MODULE_SHIPPING_USPS_TEXT_TITLE;
 		$this->description = MODULE_SHIPPING_USPS_TEXT_DESCRIPTION;
 		$this->icon = DIR_WS_ICONS . 'shipping_usps.gif';
@@ -280,7 +278,7 @@ class usps {
 		$this->intl_types = array(
 			'Priority Mail Express International',
 			'Priority Mail International',
-			'Global Express Guaranteed (GXG)**',
+			'Global Express Guaranteed (GXG)',
 			'Global Express Guaranteed Document',
 			'Global Express Guaranteed Non-Document Rectangular',
 			'Global Express Guaranteed Non-Document Non-Rectangular',
@@ -288,10 +286,10 @@ class usps {
 			'Priority Mail International Medium Flat Rate Box',
 			'Priority Mail Express International Flat Rate Envelope',
 			'Priority Mail International Large Flat Rate Box',
-			'USPS GXG Envelopes**',
+			'USPS GXG Envelopes',
 			'First-Class Mail International Letter**',
 			'First-Class Mail International Large Envelope**',
-			'First-Class Package International Service**',
+			'First-Class Package International Service',
 			'Priority Mail International Small Flat Rate Box**',
 			'Priority Mail Express International Legal Flat Rate Envelope',
 			'Priority Mail International Gift Card Flat Rate Envelope**',
@@ -305,8 +303,8 @@ class usps {
 			'Priority Mail Express International Flat Rate Boxes',
 			'Priority Mail Express International Padded Flat Rate Envelope'
 		);
-		$this->dmstc_type_change = false;
-		$this->intl_type_change = false;
+		$this->dmstc_type_change = array();
+		$this->intl_type_change = array();
 		$this->dmstc_available = explode(', ', MODULE_SHIPPING_USPS_DMSTC_TYPES);
 		$this->intl_available = explode(', ', MODULE_SHIPPING_USPS_INTL_TYPES);
 		list($length, $width, $height, $ounces) = explode(', ', MODULE_SHIPPING_USPS_DMSTC_FIRSTCLASS_LETTER);
@@ -662,8 +660,6 @@ class usps {
 				$trnstime = $this->_getDmstcTransitTimes();
 			}
 			
-// 			print_r( $trnstime );
-			
 			$error = false;
 			foreach ($boxesToShip as $package) {
 				$pkgQuote = $this->_getDmstcQuote($package, $method);
@@ -706,14 +702,9 @@ class usps {
 								$time = $trnstime['parcel'];
 							}
 							
-// 							echo "[$time] <br />";
-// 							echo "x[$title]<br />";
-							
 							if( $time != '' ){
 								$title .= '<br />' . $time;
 							}
-							
-// 							echo "[$title]<br />";
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['onlinerate'] + $this->dmstc_handling[$quote['id']];
@@ -739,14 +730,9 @@ class usps {
 								$time = $trnstime['parcel'];
 							}
 							
-// 							echo "[$time] <br />";
-// 							echo "x[$title]<br />";
-							
 							if( $time != '' ){
 								$title .= '<br />' . $time;
 							}
-							
-// 							echo "[$title]<br />";
 						}
 						if (MODULE_SHIPPING_USPS_HANDLING_TYPE == 'Per Shipment') {
 							$cost = $quote['retailrate'] + $this->dmstc_handling[$quote['id']];
@@ -766,9 +752,11 @@ class usps {
 					$uspsQuote = $methods;
 				}
 			}
-			if ($this->dmstc_type_change && (MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED == 'False')) {
-				tep_mail(STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, 'USPS Domestic Shipping Type Change', 'The USPS shipping module has detected that the USPS Rates API has returned a domestic service response name that is not listed in the module\'s complete list of domestic response types. As this could create problems with providing customers with USPS rate quotes you should check as soon as possible the documentation for the Rate Calculator on the USPS Web Tools internet page for changes that could affect the working of this module.', 'Your USPS Shipping Module', STORE_OWNER_EMAIL_ADDRESS);
-				tep_db_query ("update " . TABLE_CONFIGURATION . " set configuration_value = 'True' where configuration_key = 'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED'");
+			if( sizeof($this->dmstc_type_change) > 0 ){
+				$this->logTypeChange(array(
+					'type' => 'Domestic',
+					'changes' => $this->dmstc_type_change,
+				));
 			}
 		} else { // international quote
 			$maxinsurance_query = tep_db_query("select distinct(max_insurance) from USPS_intl_maxins where insurable and country_code = '" . tep_db_input($order->delivery['country']['iso_code_2']) . "' order by max_insurance");
@@ -840,9 +828,13 @@ class usps {
 					$uspsQuote = $methods;
 				}
 			}
-			if ($this->intl_type_change && (MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED == 'False')) {
-				tep_mail(STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS, 'USPS Internatonal Shipping Type Change', 'The USPS shipping module has detected that the USPS Rates API has returned a international service response name that is not listed in the module\'s complete list of international response types. As this could create problems with providing customers with USPS rate quotes you should check as soon as possible the documentation for the Rate Calculator on the USPS Web Tools internet page for changes that could affect the working of this module.', 'Your USPS Shipping Module', STORE_OWNER_EMAIL_ADDRESS);
-				tep_db_query ("update " . TABLE_CONFIGURATION . " set configuration_value = 'True' where configuration_key = 'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED'");
+			
+			// if there's been a change detected, log it..
+			if( sizeof($this->intl_type_change) > 0 ){
+				$this->logTypeChange(array(
+					'type' => 'International',
+					'changes' => $this->intl_type_change,
+				));
 			}
 		}
 		if (is_array($uspsQuote)) {
@@ -949,7 +941,36 @@ class usps {
 		}
 		// Values to select domestic shipping methods and handling are set from list created in function usps
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Shipping Methods', 'MODULE_SHIPPING_USPS_DMSTC_TYPES', '" . implode(', ', $this->types) . "', 'Select the domestic services to be offered:', '6', '0', 'usps_cfg_select_multioption(array(" . implode(', ', $cfglist) . "), ', now())");
-		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Types Have Changed', 'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED', 'False', 'Automatically set by this module to True if the USPS returns a response not listed in the domestic types array.', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+		
+		// domestic types
+		tep_db_query("
+			INSERT INTO
+				" . TABLE_CONFIGURATION . " 
+			(
+				configuration_title, 
+				configuration_key, 
+				configuration_value, 
+				configuration_description, 
+				configuration_group_id, 
+				sort_order, 
+				use_function, 
+				set_function,
+				date_added
+			) 
+				VALUES 
+			(
+				'Domestic Type Changes', 
+				'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED', 
+				'[]', 
+				'Changed Types (for use by developer):', 
+				'6', 
+				'0', 
+				'usps_cfg_display_json_as_list', 
+				'usps_cfg_display_json_as_list(', 
+				now()
+			)
+		");
+		
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Flat Handling Fees', 'MODULE_SHIPPING_USPS_DMSTC_HANDLING', '" . implode(', ', $handling) . "', 'Add a different handling fee for each shipping type.', '6', '0', 'usps_cfg_multiinput_list(array(" . implode(', ', $cfglist) . "), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Rates', 'MODULE_SHIPPING_USPS_DMSTC_RATE', 'Retail', 'Charge retail pricing or internet pricing?', '6', '0', 'tep_cfg_select_option(array(\'Retail\', \'Internet\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Domestic Delivery Confirmation', 'MODULE_SHIPPING_USPS_DMST_DEL_CONF', 'True', 'Automatically charge Delivery Confirmation when available? Note: Signature Confirmation will override this if it is selected.', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
@@ -969,7 +990,36 @@ class usps {
 		}
 		// Values to select international shipping methods and handling are set from list created in function usps
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Shipping Methods', 'MODULE_SHIPPING_USPS_INTL_TYPES', '" . implode(', ', $this->intl_types) . "', 'Select the international services to be offered:', '6', '0', 'usps_cfg_select_multioption(array(" . implode(', ', $cfglist) . "), ', now())");
-		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Types Have Changed', 'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED', 'False', 'Automatically set by this module to True if the USPS returns a response not listed in the international types array.', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
+		
+		// international type changes
+		tep_db_query("
+			INSERT INTO 
+				" . TABLE_CONFIGURATION . " 
+			(
+				configuration_title, 
+				configuration_key, 
+				configuration_value, 
+				configuration_description, 
+				configuration_group_id, 
+				sort_order, 
+				use_function,
+				set_function, 
+				date_added
+			) 
+				VALUES 
+			(
+				'International Type Changes', 
+				'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED', 
+				'[]', 
+				'Changed Types (for use by developer):', 
+				'6', 
+				'0', 
+				'usps_cfg_display_json_as_list', 
+				'usps_cfg_display_json_as_list(', 		
+				NOW()
+			)
+		");
+		
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Flat Handling Fees', 'MODULE_SHIPPING_USPS_INTL_HANDLING', '" . implode(', ', $handling) . "', 'Add a different handling fee for each shipping type.', '6', '0', 'usps_cfg_multiinput_list(array(" . implode(', ', $cfglist) . "), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Rates', 'MODULE_SHIPPING_USPS_INTL_RATE', 'Retail', 'Charge retail pricing or internet pricing? (Note: If set to internet and internet pricing is not available retail rate will be returned.)', '6', '0', 'tep_cfg_select_option(array(\'Retail\', \'Internet\'), ', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('International Insurance', 'MODULE_SHIPPING_USPS_INTL_INSURANCE_OPTION', 'True', 'Use USPS calculated international insurance?', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
@@ -1201,7 +1251,12 @@ class usps {
 		if (!isset($service['MailService'])) return array();
 		$qname = htmlspecialchars_decode($service['MailService']);
 		$qid = str_replace(array('<sup>', '</sup>', '&reg;', '&trade;', '&#174;', '&#8482;', ' 1-Day', ' 2-Day', ' 3-Day', ' Military', ' DPO'), '', $qname);
-		if (!in_array($qid, $this->types)) $this->dmstc_type_change = true; // not in the complete list of types
+		
+		// if not in the complete list of types, log the change..
+		if( ! in_array($qid, $this->types) ){
+			$this->dmstc_type_change[] = $qid; 
+		}
+		
 		$retailrate = $service['Rate'];
 		$onlinerate = $service['CommercialRate'];
 		$retailavailable = ($retailrate > 0);
@@ -1318,7 +1373,6 @@ class usps {
 			if ($http->Get('/' . $api_dll . '?' . $transitpriorityreq)) $transpriorityresp = $http->getBody();
 			if ($http->Get('/' . $api_dll . '?' . $transitexpressreq)) $transexpressresp = $http->getBody();
 			if ($http->Get('/' . $api_dll . '?' . $transitparcelreq)) $transparcelresp = $http->getBody();
-			//		mail('user@localhost.com','USPS Transit Response',$transresp[$key],'From: <user@localhost.com>');
 			$http->Disconnect();
 		} else {
 			return false;
@@ -1476,6 +1530,7 @@ class usps {
 					'<Height>' . $pkg['item_height'] . '</Height>' .
 					'<Girth>' . ($pkg['item_height'] + $pkg['item_height'] + $pkg['item_width'] + $pkg['item_width']) . '</Girth>' .
 					'<OriginZip>' . SHIPPING_ORIGIN_ZIP . '</OriginZip>' .
+					
 					'<CommercialFlag>Y</CommercialFlag>' .
 					'<ExtraServices>' .
 					'<ExtraService>1</ExtraService>' .
@@ -1483,6 +1538,7 @@ class usps {
 					'</Package>';
 		}
 		$request .= '</IntlRateV2Request>';
+		
 		$request = 	'API=IntlRateV2&XML=' . urlencode($request);
 		$usps_server = 'production.shippingapis.com';
 		$api_dll = 'shippingAPI.dll';
@@ -1501,6 +1557,12 @@ class usps {
 			$body = '<Error><Number></Number><Description>' . MODULE_SHIPPING_USPS_TEXT_CONNECTION_ERROR . '</Description></Error>';
 		}
 		$doc = XML_unserialize($body);
+		
+		
+// 		print_R( $doc );
+// 		exit;
+		
+		
 		$quotes = array();
 		if (isset($doc['Error'])) return array('error' => $doc['Error']['Number'] . ' ' . $doc['Error']['Description']);
 		if (isset($doc['IntlRateV2Response']['Package']['Error'])) return array('error' => $doc['IntlRateV2Response']['Package']['Error']['Number'] . ' ' . $doc['IntlRateV2Response']['Package']['Error']['Description']);
@@ -1562,7 +1624,14 @@ class usps {
 		}
 		$qname = htmlspecialchars_decode($service['SvcDescription']);
 		$qid = str_replace(array('<sup>', '</sup>', '&reg;', '&trade;', '&#174;', '&#8482;'), '', $qname);
-		if (!in_array($qid, $this->intl_types)) $this->intl_type_change = true; // not in the complete list of types
+		
+		
+		// if not in the complete list of types, log the change..
+		if( ! in_array($qid, $this->intl_types) ){
+			$this->intl_type_change[] = $qid;
+		} 
+				
+		
 		if (!in_array($qid, $this->intl_request_types)) return array(); // not an allowed international method
 		$retailrate = $service['Postage'];
 		$onlinerate = $service['CommercialPostage'];
@@ -1657,7 +1726,123 @@ class usps {
 		);
 	}
 	// END INTERNATIONAL RESPONSE
-
+	
+	
+	/**
+	 * logs a type change
+	 * 
+	 * Expected Params:
+	 * 	- (string) type
+	 * 	- (array) changes
+	 */
+	private function logTypeChange( $params = array() ){		
+		// if new change have been detected, send a notification email
+		if( $new_changes = $this->updateTypeChangeStorage($params) ){
+			$this->sendNotificationEmailTypeChange(array(
+				'type' => $params['type'],
+				'changes' => $new_changes,
+			));
+		}
+	}
+	
+	
+	/**
+	 * updates type change storage value
+	 * 
+	 * Expected Params:
+	 * 	- (string) type
+	 * 	- (array) changes
+	 */
+	private function updateTypeChangeStorage( $params = array() ){
+		$new_changes = array();
+		
+		// determine what configuration value key we're working with..
+		$cfg_key = ($params['type'] === 'International'
+				?
+			'MODULE_SHIPPING_USPS_INTL_TYPE_CHANGE_DETECTED'
+				:
+			'MODULE_SHIPPING_USPS_DMSTC_TYPE_CHANGE_DETECTED'
+		);
+		
+		// query existing changes..
+		$q = tep_db_query("
+			SELECT	
+				configuration_value
+			FROM
+				" . TABLE_CONFIGURATION . "
+			WHERE
+				configuration_key = '" . $cfg_key . "'
+		");
+		
+		// fetch result; older PHP version compatible, so ugly..
+		$r = tep_db_fetch_array($q);
+		$existing_changes = json_decode($r['configuration_value'], true);
+				
+		// remove any change that have been added..
+		$changes_added = false;
+		foreach( $existing_changes as $k => $change ){
+			if( in_array($change, ($params['type'] === 'International'
+					?
+				$this->intl_types
+					:
+				$this->types
+			)) ){
+				unset($existing_changes[$k]);
+				$changes_added = true;
+			}
+		}
+		
+		// check for new changes..
+		foreach( $params['changes'] as $change ){
+			if( ! in_array($change, $existing_changes) ){
+				$new_changes[] = $change;
+			} 
+		}
+		
+		// if changes have been added or we've got new changes, update the db..
+		if( $changes_added || $new_changes ){
+			tep_db_query("
+				UPDATE	
+					" . TABLE_CONFIGURATION . "
+				SET
+					configuration_value = '" . tep_db_input(
+						json_encode(array_merge(
+							$existing_changes,
+							$new_changes
+						))
+					) . "'
+				WHERE
+					configuration_key = '" . $cfg_key . "'
+			");
+		}
+		
+		return $new_changes;
+	}
+	
+	
+	/**
+	 * sends a notification email regarding type changes
+	 * 
+	 * Expected Params:
+	 * 	- (string) type
+	 * 	- (array) changes	 
+	 */
+	private function sendNotificationEmailTypeChange( $params = array() ){
+		tep_mail(
+			STORE_OWNER,
+			STORE_OWNER_EMAIL_ADDRESS,
+			'USPS ' . $params['type'] . ' Shipping Type Change',
+			'The following unsupported shipping types have been detected:'
+				. "\n"
+				. implode("\n", $params['changes'])
+				. "\n\n"
+				. "Community Support: "
+				. "https://github.com/Evan-R/USPS-osCommerce/issues"
+			,
+			'osCommerce USPS Shipping Module [' . $this->version . ']',
+			STORE_OWNER_EMAIL_ADDRESS
+		);
+	}
 }
 // ENDS USPS CLASS
 
@@ -1688,4 +1873,22 @@ function usps_cfg_multiinput_list($select_array, $key_value, $key = '') {
 	$string .= '<input type="hidden" name="' . $name . '" value="--none--">';
 	return $string;
 }
+
+/**
+ * displays a json string as a list
+ *
+ * @param (string) $cfg_value
+ */
+function usps_cfg_display_json_as_list( $cfg_value ){
+	$array = json_decode($cfg_value, true);
+
+	$string = '<ul>';
+	foreach( $array as $li ){
+		$string .= '<li><pre>' . $li . '</pre></li>';
+	}
+	$string .= '</ul>';
+
+	return $string;
+}
+
 
