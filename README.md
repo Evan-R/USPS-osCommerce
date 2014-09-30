@@ -4,6 +4,8 @@
 ## Kindly Sponsored By:
 - Til Luchau (http://advanced-trainings.com)
 - Anonymous Sponsor #1
+- Aedea Innovations Inc.
+- Evanay Solutions
 
 
 ## Authors:
