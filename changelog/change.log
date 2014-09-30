@@ -1,3 +1,7 @@
+===== 7.3.1 =====
+- updates version number
+
+
 ===== 7.3.0 =====
 - add `Parcel` to `Media Mail` and `Library Mail` (was causing handling rates not to be added)
 
