@@ -5,7 +5,7 @@
 - Til Luchau (http://advanced-trainings.com)
 - Anonymous Sponsor #1
 - Aedea Innovations Inc.
-- Evanay Solutions
+- Evanay Solutions Ltd.
 
 
 ## Authors:
