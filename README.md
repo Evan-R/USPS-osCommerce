@@ -40,7 +40,7 @@ then, shortly after, look for
 
 ..and change to this:
 ```php
-while (list($key, $value) = each($HTTP_POST_VARS['configuration'])) {
+        while (list($key, $value) = each($HTTP_POST_VARS['configuration'])) {
         	switch( $module_name ) {
         		case 'usps':
         			/*
