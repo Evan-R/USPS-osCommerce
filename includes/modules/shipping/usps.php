@@ -1,10 +1,10 @@
 <?php
 /*
 	Version 7.4.0
-		@Author: John Ny (sokhom@evannaysolution.com) 
-		@Notes: https://github.com/HuySokhom/USPS-osCommerce/releases
-		@License: https://github.com/HuySokhom/USPS-osCommerce/blob/master/LICENSE
-		@Support: https://github.com/HuySokhom/USPS-osCommerce/issues
+		@Author: John Ny (aedea.innovations@gmail.com) 
+		@Notes: https://github.com/Evan-R/USPS-osCommerce/releases
+		@License: https://github.com/Evan-R/USPS-osCommerce/blob/master/LICENSE
+		@Support: https://github.com/Evan-R/USPS-osCommerce/issues
 
 
 	Legacy / Historical Information:
