@@ -1,10 +1,10 @@
 <?php
 /*
-	Version 7.3.1
-		@Author: Evan Roberts (evan.aedea@gmail.com) 
-		@Notes: https://github.com/Evan-R/USPS-osCommerce/releases
-		@License: https://github.com/Evan-R/USPS-osCommerce/blob/master/LICENSE
-		@Support: https://github.com/Evan-R/USPS-osCommerce/issues
+	Version 7.4.0
+		@Author: John Ny (sokhom@evannaysolution.com) 
+		@Notes: https://github.com/HuySokhom/USPS-osCommerce/releases
+		@License: https://github.com/HuySokhom/USPS-osCommerce/blob/master/LICENSE
+		@Support: https://github.com/HuySokhom/USPS-osCommerce/issues
 
 
 	Legacy / Historical Information:
@@ -1031,6 +1031,33 @@ class usps {
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, date_added) values ('Non USPS Insurance', 'MODULE_SHIPPING_USPS_INS4', '4.70', 'Totals $200.01-$300', '6', '0', 'currencies->format', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, date_added) values ('Non USPS Insurance', 'MODULE_SHIPPING_USPS_INS5', '1.00', 'For every $100 over $300 add:', '6', '0', 'currencies->format', now())");
 		tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Handling Fees Charged', 'MODULE_SHIPPING_USPS_HANDLING_TYPE', 'Per Package', 'Select whether domestic and international handling fees are charged:', '6', '0', 'tep_cfg_select_option(array(\'Per Package\', \'Per Shipment\'), ', now())");
+	
+		// install threshold dimension //
+		tep_db_query("
+			INSERT INTO
+				" . TABLE_CONFIGURATION . "
+			(
+				configuration_title,
+				configuration_key,
+				configuration_value,
+				configuration_description,
+				configuration_group_id,
+				sort_order,
+				set_function,
+				date_added
+			)
+				VALUES
+			(
+				'Dimension Threshold',
+				'MODULE_SHIPPING_USPS_DIMENSION_THRESHOLD',
+				'5.375, 8.625, 1.625, 12, 12, 5.5, 8.5, 11, 5.5, 11.875, 13.625, 3.375, 8.5, 11, 5.5',
+				'dimension of threshold',
+				'6',
+				'0',
+				'usps_cfg_multiinput_duallist_oz(array(\'Small Flat Rate Box\', \'Medium Flat Rate Box\', \'Large Flat Rate Box\'), ',
+				NOW()
+			)
+		");
 	}
 
 	function keys() {
@@ -1076,7 +1103,9 @@ class usps {
 			'MODULE_SHIPPING_USPS_INS3',
 			'MODULE_SHIPPING_USPS_INS4', 
 			'MODULE_SHIPPING_USPS_INS5', 
-			'MODULE_SHIPPING_USPS_HANDLING_TYPE'
+			'MODULE_SHIPPING_USPS_HANDLING_TYPE',
+			// add new featured dimension threshold
+			'MODULE_SHIPPING_USPS_DIMENSION_THRESHOLD'
 		);
 	}
 	// End Install Module
@@ -1156,14 +1185,56 @@ class usps {
 				if ((strpos($cont, 'Legal') !== false) && (($length > 15) || ($width > 9.5))) continue;
 				if (($length > 12.5) || ($width > 9.5)) continue; // other envelopes
 			}
-			if (($cont == 'SM Flat Rate Box') && (($length > 8.625) || ($width > 5.375) || ($height > 1.625))) continue;
-			if (($cont == 'MD Flat Rate Box') || ($cont == 'Flat Rate Box')) {
-				if ($length > 13.625) continue; // too big for longest medium box
-				if ($length > 11) { // check medium type 2 box
-					if (($length > 13.625) || ($width > 11.875) || ($height > 3.375)) continue; // won't fit medium type 2 box
-				} elseif (($length > 11) || ($width > 8.5) || ($height > 5.5)) continue; // won't fit either type medium box
+			
+			// update to use new featured dynamically dimension from USPS admin tool
+			$DT = explode(", ", MODULE_SHIPPING_USPS_DIMENSION_THRESHOLD);
+			
+			if (($cont == 'SM Flat Rate Box')
+				&&
+			(
+				($length > $DT[1])
+					||
+				($width > $DT[0])
+					||
+				($height > $DT[2]))
+			) continue;
+				
+			if (($cont == 'LG Flat Rate Box') || ($cont == 'Flat Rate Box')) {
+				if($length > $DT[10]) continue; // too big for longest medium box
+				if($length > $DT[13]) { // check medium type 2 box
+					if(
+					($length > $DT[10])
+						||
+					($width > $DT[9])
+						||
+					($height > $DT[11])) continue; // won't fit medium type 2 box
+				} elseif (
+					($length > $DT[13])
+						||
+					($width > $DT[12])
+						||
+					($height > $DT[14])) continue; // won't fit either type medium box
 			}
-			if (($cont == 'LG Flat Rate Box') && (($length > 12) || ($width > 12) || ($height > 5.5))) continue;
+				
+			if (($cont == 'MD Flat Rate Box')
+				&&
+			(
+				($length > $DT[4])
+					||
+				($width > $DT[3])
+					||
+				($height > $DT[5])
+			)
+				&&
+			(
+				($length > $DT[7])
+					||
+				($width > $DT[6])
+					||
+				($height > $DT[8])
+			)
+			) continue;
+			
 			if ($cont == 'Regional Rate Box A') {
 				if ($length > 12.8125) continue; // too big for longest A box
 				if ($length > 10) { // check A2 box
@@ -1891,4 +1962,85 @@ function usps_cfg_display_json_as_list( $cfg_value ){
 	return $string;
 }
 
+
+// USPS Methods.
+// function for Store configuration values in the Administration Tool.
+function usps_cfg_multiinput_duallist_oz($select_array, $key_value, $key = '') {
+	$key_values = explode( ", ", $key_value);
+	for ($i=0; $i<sizeof($select_array); $i++) {
+		$current_key_value = current($key_values);
+
+		$name = (($key) ? 'configuration[' . $key . '][]' : 'configuration_value');
+		$string .= '<br/> <b> ' . $select_array[$i] . ' </b>';
+
+
+		$current_key_value = current($key_values);
+		$string .= '<table cellspacing="0px" border="0"
+				style="
+					font-size: 10px;
+				">
+				<tr><td> width:</td><td>
+					<input
+						type = "text"
+						name = "' . $name . '"
+						value = "' . $current_key_value . '">
+					</td>
+				</tr>';
+
+		next($key_values);
+		$current_key_value = current($key_values);
+		$string .= '<tr><td>length: </td><td> <input
+						type = "text"
+						name = "' . $name . '"
+						value = "' . $current_key_value . '">
+					</td></tr>';
+
+		next($key_values);
+		$current_key_value = current($key_values);
+		$string .= '<tr><td>height:</td><td>  <input
+						type = "text"
+						name = "' . $name . '"
+						value = "' . $current_key_value . '">
+					<td>
+					</tr></table>';
+
+		switch ($select_array[$i]){
+			case 'Medium Flat Rate Box':
+			case 'Large Flat Rate Box':
+				$string .= '<b>Or</b>';
+				next($key_values);
+				$current_key_value = current($key_values);
+				$string .= '<table cellspacing="0px" border="0"
+					style="
+						font-size: 10px;
+					">
+					<tr>
+						<td>width:</td><td>  <input
+							type = "text"
+							name = "' . $name . '"
+							value = "' . $current_key_value . '">
+						</td>
+					</tr>';
+
+				next($key_values);
+				$current_key_value = current($key_values);
+				$string .= '<tr><td>length:</td><td>  <input
+						type = "text"
+						name = "' . $name . '"
+						value = "' . $current_key_value . '"
+					></td></tr>';
+
+				next($key_values);
+				$current_key_value = current($key_values);
+				$string .= '<tr><td>height:</td><td> <input
+						type = "text"
+						name = "' . $name . '"
+						value = "' . $current_key_value . '"
+					></td></tr></table>';
+		}
+		next($key_values);
+	}
+
+	return $string;
+}
 
